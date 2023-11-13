@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 $stmt->execute();
                 echo "Profile updated successfully." . '<br>';
-                header("Location:login.view.php");
+                header("Location:../admin/admin.page.php");
                 die();
             } catch (PDOException $e) {
                 echo "Database error: " . $e->getMessage();

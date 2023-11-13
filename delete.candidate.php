@@ -9,8 +9,9 @@ try {
 $query = "DELETE FROM candidates WHERE CAND_CODE=:candCode";
 $stmt = $conn->prepare($query);
 $stmt->bindParam(':candCode', $candCode);
+$stmt->execute();
 
-    $stmt->execute();
+
 
     echo "Record deleted successfully." . '<br>';
     header("Location:admin/admin.page.php");

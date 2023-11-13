@@ -88,16 +88,16 @@ $image=$result['CAND_IMAGE'];
 
         position
         <label for="position" class="form-label">
-            <select name="position" id="position" class="form-select" required>
-                <option>President</option>
-                <option>Vice President</option>
-                <option>Secretary</option>
-                <option>Manager</option>
+            <select name="position" id="position" class="form-select"  required>
+                <option <?php echo $position == "President" ? "selected" : ""; ?>>President</option>
+                <option <?php echo $position == "Vice President" ? "selected" : ""; ?>>Vice President</option>
+                <option <?php echo $position == "Secretary" ? "selected" : ""; ?>>Secretary</option>
+                <option <?php echo $position == "Manager" ? "selected" : ""; ?>>Manager</option>
             </select>
         </label>
 
 
-        <input type="file" name="candimage" placeholder="image"><br>
+        <input type="file" name="candimage"><br>
 
         <input type="submit" name="submit" value="Update" id=submit>
 

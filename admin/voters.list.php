@@ -52,11 +52,11 @@ a{
 .update{
     background-color:royalblue;
 }
-.delete{
+.remove{
     background-color:red;
 }
 
-.col-md-8 a{
+.col-md-8 {
 text-decoration: none;
 }
 
@@ -98,6 +98,7 @@ h3{
             <th>Image</th>
             <th>Name</th>
             <th>Gender</th>
+            <th>Voter's ID</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
@@ -115,19 +116,48 @@ h3{
             $fullName=$row['FIRST_NAME'] .' '. $row['LAST_NAME'];
             $gender=$row['GENDER'];
             $image=$row['VOTER_IMAGE'];
-            $vortersid=$row['VOTER_ID'];
+            $voterId=$row['VOTER_ID'];
             $status=$row['STATUS'];
             ?>
 
             <tr>
-            <th> <img src="../uploads/<?php echo $image ?>"></th>
-            <th><?php echo $fullName ?></th>
-            <th><?php echo $gender ?></th>
-            <th><?php echo $status ?></th>
-            <th> <button type=submit class=delete><a href="#">Remove</a></button>
-            <button type=submit class=update><a href="../voter/updatevoter.view.php">Edit</a></button>
-            </th>
+            <td> <img src="../uploads/<?php echo $image ?>"></td>
+            <td><?php echo $fullName ?></td>
+            <td><?php echo $gender ?></td>
+            <td><?php echo $voterId ?></td>
+            <td><?php echo $status ?></td>
+            <td>
+            <button type=button class=" remove" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $voterId ?>">Remove</button>
+                <input type="hidden" name="voterId" >
+            <button type=submit class=update value="<?php echo $voterId; ?>"><a href="../voter/updatevoter.view.php?id=<?php echo $voterId?>">Edit</a></button>
+            </td>
             </tr>
+
+            <tr>
+<td>
+    <div class="modal" id="deleteModal<?php echo $voterId ?>">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <!-- modal header -->
+        <div class="modal-header">
+    <h4 class="modal-title">Confirm Delete</h4>
+
+</div>
+
+        <!-- modal body -->
+    <div class="modal-body">
+        <button class="btn btn-danger"><a href="../delete.voter.php?deleteid=<?php echo $voterId ?>">Delete</a></button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+    </div>
+
+    </div>
+    </div>
+    </div>    
+
+</td>
+
+</tr>
+
             
         <?php 
         }

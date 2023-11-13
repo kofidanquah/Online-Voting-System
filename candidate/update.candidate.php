@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(':firstname', $firstname);
         $stmt->bindParam(':lastname', $lastname);
         $stmt->bindParam(':candCode', $candCode);
-
+    
                 $stmt->execute();
                 echo "candidate updated successfully." . '<br>';
                 die();

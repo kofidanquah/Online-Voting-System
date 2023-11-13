@@ -110,7 +110,7 @@ $data = $stmt->fetch(PDO::FETCH_ASSOC);
             ?>
 
             <br><br>
-            <a href="updatevoter.view.php"><button class="btn btn-dark text-light px-3 bg-success">Edit Profile</button></a>
+            <a href="#"><button class="btn btn-dark text-light px-3 bg-success">Edit Profile</button></a>
 
         </div>
 

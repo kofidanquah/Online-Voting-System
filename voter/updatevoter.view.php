@@ -1,17 +1,20 @@
 <?php
 require "../config.php";
 
-if (isset($_SESSION)) {
-    $voterId = $_SESSION["voterId"];
-    $firstname = $_SESSION["firstname"];
-    $lastname = $_SESSION["lastname"];
-    $gender = $_SESSION["gender"];
-    $image = $_SESSION["image"];
 
-} else {
-    header("Location:updatevoter.view.php");
-    die();
-}
+$id = $_GET['id'];
+$sql = "SELECT * FROM voters WHERE VOTER_ID = :id";
+$stmt = $conn->prepare($sql);
+$stmt->bindParam(':id', $id);
+$stmt->execute();
+
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$firstname=$result['FIRST_NAME'];
+$lastname=$result['LAST_NAME'];
+$position=$result['GENDER'];
+$voterId=$result['VOTER_ID'];
+$image=$result['VOTER_IMAGE'];
 ?>
 
 <!DOCTYPE html>
@@ -79,15 +82,17 @@ if (isset($_SESSION)) {
 <body>
     <form method="post" action="update.voter.php" enctype="multipart/form-data">
         <h4>Update Profile</h4>
-        firstname
+        
+        Firstname
         <input type="text" name="firstname" value= "<?php echo $firstname; ?>" autocomplete="off"><br>
-        lastname
+        Lastname
         <input type="text" name="lastname" value= "<?php echo $lastname; ?>" autocomplete="off"><br>
+        Gender
         <label for="gender" class="form-label">
             <select name="gender" class="form-select"  required>
                 <option selected disabled>Gender</option>
-                <option>Male</option>
-                <option>Female</option>
+                <option <?php echo $position == "Male" ? "selected" : ""; ?> >Male</option>
+                <option <?php echo $position == "Female" ? "selected" : ""; ?> >Female</option>
             </select>
         </label>
         <input type="file" name="image" value= "../uploads/<?php echo $image; ?>"><br>

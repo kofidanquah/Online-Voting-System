@@ -50,7 +50,6 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>    
 <style>
 body{
-    background-image:url();
     background-repeat:no-repeat;
     background-size: cover;
 }
@@ -179,7 +178,7 @@ border-radius: 10px;
     <div class="col-md-9">
         <button type="submit"><a href="../candidate/addcandidate.view.php" class="btn-success">+ Add Candidate</a></button>
         <button type="submit"><a href="../voter/addvoter.view.php">+ Add Voter</a></button>
-        <button type="submit" ><a href="listofvoters.php">List of Voters</a></button>
+        <button type="submit" ><a href="voters.list.php">List of Voters</a></button>
         <button type="submit" ><a href="results.php">Results</a></button>
 
         <br><br>
@@ -236,7 +235,7 @@ border-radius: 10px;
 
         <!-- modal body -->
     <div class="modal-body">
-        <button class="btn btn-danger"><a href="../delete.php?deleteid=<?php echo $candCode ?>">Delete</a></button>
+        <button class="btn btn-danger"><a href="../delete.candidate.php?deleteid=<?php echo $candCode ?>">Delete</a></button>
         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
     </div>
 

@@ -283,15 +283,9 @@ echo "No Records Available";
 
 </div>
 
-
-
-
-
-
-
-
 <br>
-<a href="../update.secretary.php" ><button class="submit btn btn-success text-light px-3 btn-center">Submit Ballot</button></a>
+<a><button class="submit btn btn-success text-light px-3 btn-center">Submit Ballot</button></a>
+
 </form>
 
 </body>

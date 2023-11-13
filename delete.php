@@ -6,14 +6,25 @@ if (isset($_GET["deleteid"])) {
 
 try {
 
-    $sql = "DELETE FROM candidates WHERE CAND_CODE=:candCode";
-    $stmt = $db->prepare($sql);
-    // use exec() because no results are returned
-    echo "Record deleted successfully";
+$query = "DELETE FROM candidates WHERE CAND_CODE=:candCode";
+$stmt = $conn->prepare($query);
+$stmt->bindParam(':candCode', $candCode);
+
+    $stmt->execute();
+
+    echo "Record deleted successfully." . '<br>';
+    header("Location:admin/admin.page.php");
+    die();
 } catch (PDOException $e) {
-    echo $sql . "<br>" . $e->getMessage();
+    echo "Database error: " . $e->getMessage();
 }
+} else {
+echo "failed to delete record.";
+die();
 }
+
+
+
 $conn = null;
 ?>
 

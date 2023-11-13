@@ -216,11 +216,39 @@ border-radius: 10px;
             <th><?php echo $position;?></th>
             <th><?php echo $candCode;?></th>
             <th>
-                <button type=button class="btn remove" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $candCode ?>">Remove</button>
+                
+                <button type=button class=" remove" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $candCode ?>">Remove</button>
                 <input type="hidden" name="candCode" >
             <button type=submit class=update value="<?php echo $candCode; ?>"><a href="../candidate/update.candidate.view.php?id=<?php echo $candCode?>">Edit</a></button>
         </th>
             </tr>
+
+            <tr>
+<td>
+    <div class="modal" id="deleteModal<?php echo $candCode ?>">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <!-- modal header -->
+        <div class="modal-header">
+    <h4 class="modal-title">Confirm Delete</h4>
+    <!-- <button type="button" class="btn btn-close" data-bs-dismiss="modal">Close</button> -->
+        </div>
+
+        <!-- modal body -->
+    <div class="modal-body">
+        <button class="btn btn-danger"><a href="../delete.php?deleteid=<?php echo $candCode ?>">Delete</a></button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+    </div>
+
+    </div>
+    </div>
+    </div>    
+
+</td>
+
+</tr>
+
+
         <?php }
     
     } catch (PDOException $e) {
@@ -235,28 +263,6 @@ border-radius: 10px;
     </div>
 
 </div>
-
-
-<td>
-    <div class="modal" id="deleteModal<?php echo $candCode ?>">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-        <div class="modal-header">
-    <h4 class="modal-title">Confirm Delete</h4>
-    <button type="button" class="btn btn-close" data-bs-dismiss="modal">Close</button>
-        </div>
-
-    <div class="modal-body">
-        <button class="btn btn-danger"><a href="../delete.php?deleteid=<?php echo $candCode ?>">Delete</a></button>
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-    </div>
-
-    </div>
-    </div>
-    </div>    
-
-</td>
 
 </body>
 </html>

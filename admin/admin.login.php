@@ -80,7 +80,8 @@ function test_input($data)
         margin: auto;
         border-radius: 20px;
         height: 50vh;
-        border:1px solid black;
+        border:2px solid black;
+        box-shadow: 10px 10px 10px;
     }
     
     h2 {
@@ -130,7 +131,7 @@ function test_input($data)
 
     <form method="post" action="<?php echo $_SERVER["PHP_SELF"];?>">
         <h2>Admin Log in</h2>
-        username<br><input type="text" name="username" autocomplete="off" required><br>
+        username<br><input type="text" name="username" autocomplete="off" autofocus required><br>
         password<br><input type="password" name="password" autocomplete="off" required><br><br>
         <input type="submit" value="Log in" id="submit"><br>
 

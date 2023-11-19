@@ -12,53 +12,20 @@ $resultSql = "SELECT `CAND_CODE`, COUNT(`ID`) AS `TOTAL_VOTES` FROM `election` G
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> -->
+
     <style>
 img {
     height: 100px;
     width: 100px;
 }
 
-input{
-    background-color: #4CAF50;
-    width: 18%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid black;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-button:hover{
-    background-color:gray ;
-}
-
-button{
-    padding: 6px 10px;
-    margin: 2px 0;
-    display: inline-block;
-    border: 1px solid black;
-    border-radius: 4px;
-    box-sizing: border-box;
-    background-color: #4CAF50;
-
-}
-a{
-    color: black;
-}
-.update{
-    background-color:royalblue;
-}
-.delete{
-    background-color:red;
-}
-
-.col-md-8 a{
-text-decoration: none;
-}
 
 table{
     border: 4px solid green;
-    width: 100%;
+    width: 65%;
+    margin-left: 15%;
 }
 hr{
     border: 1px solid black;
@@ -77,14 +44,17 @@ h3{
     <title>Results</title>
 </head>
 <body>
-<table class="table table-hover container-fluid">
+
+<!-- <button class="btn btn-primary">Declare Results</button> -->
+
+
+<table class="table table-hover">
     <h1>RESULTS</h1><hr>
     <h3>PRESIDENT</h3>
     <thead>
         <tr>           
             <th>Image</th>
             <th>Candidate Name</th>
-            <th>Candidate Code</th>
             <th>Number of votes</th>
         </tr>
     </thead>
@@ -92,7 +62,7 @@ h3{
         <?php   
     
     try {
-        $sql = "SELECT * FROM candidates WHERE POSITION ='President' ORDER BY NUMBER_OF_VOTES DESC";
+        $sql = "SELECT * FROM candidates  WHERE POSITION ='President'";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
     
@@ -114,7 +84,6 @@ h3{
             <tr>
             <th> <img src="../uploads/<?php echo $image ?>"></th>
             <th><?php echo $fullName ?></th>
-            <th><?php echo $candCode ?></th>
             <th><?php echo $votes ?></th>
             </th>
             </tr>
@@ -130,20 +99,19 @@ h3{
 
         <br><br>
 
-        <table class="table table-hover container-fluid">
+        <table class="table table-hover">
             <h3>VICE PRESIDENT</h3>
     <thead>
         <tr>           
             <th>Image</th>
             <th>Candidate Name</th>
-            <th>Candidate Code</th>
             <th>Number of votes</th>
         </tr>
     </thead>
     <tbody>
         <?php   
     try {
-        $sql = "SELECT * FROM candidates WHERE POSITION ='Vice President' ORDER BY NUMBER_OF_VOTES DESC";
+        $sql = "SELECT * FROM candidates WHERE POSITION ='Vice President'";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
 
@@ -164,7 +132,6 @@ h3{
             <tr>
             <th> <img src="../uploads/<?php echo $image ?>"></th>
             <th><?php echo $fullName ?></th>
-            <th><?php echo $candCode ?></th>
             <th><?php echo $votes ?></th>
             </th>
             </tr>
@@ -179,13 +146,12 @@ h3{
             </tbody>
         </table>
 <br><br>
-<table class="table table-hover container-fluid">
+<table class="table table-hover">
     <h3>SECRETARY</h3>
     <thead>
         <tr>           
             <th>Image</th>
             <th>Candidate Name</th>
-            <th>Candidate code</th>
             <th>Number of votes</th>
         </tr>
     </thead>
@@ -193,7 +159,7 @@ h3{
         <?php   
     
     try {
-        $sql = "SELECT * FROM candidates WHERE POSITION ='Secretary' ORDER BY NUMBER_OF_VOTES DESC";
+        $sql = "SELECT * FROM candidates WHERE POSITION ='Secretary'";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
     
@@ -216,7 +182,6 @@ h3{
             <tr>
             <th> <img src="../uploads/<?php echo $image ?>"></th>
             <th><?php echo $fullName ?></th>
-            <th><?php echo $candCode ?></th>
             <th><?php echo $votes ?></th>
             </th>
             </tr>

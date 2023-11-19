@@ -252,7 +252,6 @@ Over 100 organizations  rely on  VT for their election needs. Our secure protoco
 
 
 </div><br><br>
-<hr>
 <div class="" id=election>
 <h3>
 Scheduled Elections
@@ -271,7 +270,7 @@ Organization----------------------Date
 
 
 
-<h4>INDUSTRIES WE WORK WITH</h4><hr>
+<h4>INDUSTRIES WE WORK WITH</h4>
 <div class="row container-fluid">
 <div class="col-sm-4">
 <img src="images/church.jpg"  class="img-fluid"alt="industry"><br>

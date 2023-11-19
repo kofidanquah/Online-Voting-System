@@ -6,6 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $firstname = $_POST["firstname"];
     $lastname = $_POST["lastname"];
     $gender = $_POST["gender"];
+    $electionCode = $_POST["electionCode"];
     $file = $_FILES["image"];
     $voterCode= $_POST["voterCode"];
     $voterPassword= $_POST["voterPassword"];
@@ -22,12 +23,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $voterCode=generateVoterCode();
                 $voterPassword=generateVoterPassword();
 
-                $query = "INSERT INTO voters (VOTER_IMAGE, GENDER, FIRST_NAME, LAST_NAME, VOTER_ID, PASSWORD) VALUES (:filename, :gender,  :firstname, :lastname, :voterCode, :voterPassword)";
+                $query = "INSERT INTO voters (VOTER_IMAGE, GENDER, FIRST_NAME, LAST_NAME, VOTER_ID, PASSWORD, ELECTION_CODE) VALUES (:filename, :gender,  :firstname, :lastname, :voterCode, :voterPassword, :electionCode)";
                 $stmt = $conn->prepare($query);
                 $stmt->bindParam(':filename', $filename);
                 $stmt->bindParam(':firstname', $firstname);
                 $stmt->bindParam(':lastname', $lastname);
                 $stmt->bindParam(':gender', $gender);
+                $stmt->bindParam(':electionCode', $electionCode);
                 $stmt->bindParam(':voterCode', $voterCode);
                 $stmt->bindParam(':voterPassword', $voterPassword);
                 $stmt->execute();

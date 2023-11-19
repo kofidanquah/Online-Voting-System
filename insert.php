@@ -35,12 +35,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit;
         }
         //checking database for already existing username
-        $stmt = $conn->prepare("SELECT * FROM users WHERE USERNAME =:username");
-        $stmt->bindParam (":username",$username);
+        $query = $conn->prepare("SELECT * FROM users WHERE USERNAME =:username");
+        $query->bindParam (":username",$username);
 
-        $stmt->execute();
+        $query->execute();
 
-            if($stmt->rowCount() > 0) {
+            if($query->rowCount() > 0) {
             $_SESSION["status"] = true;
             $_SESSION["message"] = "username already exists";
             header("location:sign_up.php");

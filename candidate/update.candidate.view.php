@@ -14,6 +14,8 @@ $lastname=$result['LAST_NAME'];
 $position=$result['POSITION'];
 $candCode=$result['CAND_CODE'];
 $image=$result['CAND_IMAGE'];
+$electionCode = $result['ELECTION_CODE'];
+
 
 ?>
 
@@ -94,7 +96,7 @@ $image=$result['CAND_IMAGE'];
 <form method="post" action="update.candidate.php" enctype="multipart/form-data">
         <h4>Update Candidate</h4>
         firstname
-        <input type="text" name="firstname" value="<?php echo $firstname; ?>" autocomplete="off"><br>
+        <input type="text" name="firstname" required value="<?php echo $firstname; ?>" autocomplete="off"><br>
         lastname
         <input type="text" name="lastname" value="<?php echo $lastname; ?>" autocomplete="off"><br>
         <input type="hidden" name="candCode" value="<?php echo $candCode; ?>">
@@ -105,10 +107,10 @@ $image=$result['CAND_IMAGE'];
                 <option <?php echo $position == "President" ? "selected" : ""; ?>>President</option>
                 <option <?php echo $position == "Vice President" ? "selected" : ""; ?>>Vice President</option>
                 <option <?php echo $position == "Secretary" ? "selected" : ""; ?>>Secretary</option>
-                <option <?php echo $position == "Manager" ? "selected" : ""; ?>>Manager</option>
             </select>
         </label>
 
+        <input type="text" name="electionCode" value="<?php echo $electionCode; ?>" autocomplete="off">
 
         <img src="../uploads/<?php echo $image; ?>" width="100px"/>
         <input type="file" name="candImage"><br>

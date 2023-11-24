@@ -7,6 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $lastname = $_POST["lastname"];
     $position = $_POST["position"];
     $electionCode = $_POST["electionCode"];
+    $email = $_POST["email"];
     $file = $_FILES["candimage"];
     $candCode = generateCandCode();
 
@@ -17,13 +18,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
         // Move the uploaded image to the "uploads" folder
-        if (move_uploaded_file($tmp_name, $folder . $filename))
-        {
+        if (move_uploaded_file($tmp_name, $folder . $filename)) {
             // Insert image information into the database
             try {
-                $candCode=generateCandCode();
+                $candCode = generateCandCode();
 
-                $query = "INSERT INTO candidates (CAND_IMAGE, POSITION, FIRST_NAME, LAST_NAME, CAND_CODE, ELECTION_CODE) VALUES (:filename, :position,  :firstname, :lastname, :candCode, :electionCode)";
+                $query = "INSERT INTO candidates (CAND_IMAGE, POSITION, FIRST_NAME, LAST_NAME, CAND_CODE, ELECTION_CODE, CAND_EMAIL) 
+                VALUES (:filename, :position,  :firstname, :lastname, :candCode, :electionCode, :email)";
+
                 $stmt = $conn->prepare($query);
                 $stmt->bindParam(':filename', $filename);
                 $stmt->bindParam(':firstname', $firstname);
@@ -31,19 +33,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bindParam(':position', $position);
                 $stmt->bindParam(':candCode', $candCode);
                 $stmt->bindParam(':electionCode', $electionCode);
+                $stmt->bindParam(':email', $email);
 
                 $stmt->execute();
-                
-                echo "New candidate added successfully." . '<br>';
-                echo '<a href="../candidate/addcandidate.view.php"><button class="btn btn-dark text-light px-3">Back</button></a>';
 
-                die();
+                echo "New candidate added successfully." . '<br>';
+                // echo '<a href="../candidate/addcandidate.view.php"><button class="btn btn-dark text-light px-3">Back</button></a>';
+                // echo '<a href="../admin/admin.page.php"><button class="btn btn-dark text-light px-3">Admin</button></a>';
+                header("Location:../admin/admin.page.php");
+                die;
             } catch (PDOException $e) {
                 echo "Database error: " . $e->getMessage();
             }
         } else {
-            echo " upload failed.";
-            die();
+            header("Location:admin/admin.page.php");
+            die;
         }
     }
 }
@@ -51,4 +55,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 // Close the database connection
 $conn = null;
-?>

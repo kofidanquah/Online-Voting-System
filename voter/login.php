@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION['image'] =$data['VOTER_IMAGE'];
                 $_SESSION["voterId"] =$voterId;
                 $_SESSION["status"] = false;
-                $_SESSION["message"] = "Login sucessful";
+                // $_SESSION["message"] = "Login sucessful";
                 header("location:dashboard.php");
                 die();
             } else {

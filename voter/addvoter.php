@@ -8,6 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $gender = $_POST["gender"];
     $electionCode = $_POST["electionCode"];
     $file = $_FILES["image"];
+    $email = $_POST["email"];
     $voterCode= $_POST["voterCode"];
     $voterPassword= $_POST["voterPassword"];
 
@@ -23,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $voterCode=generateVoterCode();
                 $voterPassword=generateVoterPassword();
 
-                $query = "INSERT INTO voters (VOTER_IMAGE, GENDER, FIRST_NAME, LAST_NAME, VOTER_ID, PASSWORD, ELECTION_CODE) VALUES (:filename, :gender,  :firstname, :lastname, :voterCode, :voterPassword, :electionCode)";
+                $query = "INSERT INTO voters (VOTER_IMAGE, GENDER, FIRST_NAME, LAST_NAME, VOTER_ID, PASSWORD, ELECTION_CODE, VOTER_EMAIL) VALUES (:filename, :gender,  :firstname, :lastname, :voterCode, :voterPassword, :electionCode, :email)";
                 $stmt = $conn->prepare($query);
                 $stmt->bindParam(':filename', $filename);
                 $stmt->bindParam(':firstname', $firstname);
@@ -32,10 +33,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bindParam(':electionCode', $electionCode);
                 $stmt->bindParam(':voterCode', $voterCode);
                 $stmt->bindParam(':voterPassword', $voterPassword);
+                $stmt->bindParam(':email', $email);
+
                 $stmt->execute();
                 echo "New voter added successfully." . '<br>';
-                echo '<a href="../admin/admin.page.php"><button class="btn btn-dark text-light px-3">admin</button></a>';
-                echo '<a href="addvoter.view.php"><button class="btn btn-dark text-light px-3">Back</button></a>';
+                // echo '<a href="../admin/admin.page.php"><button class="btn btn-dark text-light px-3">admin</button></a>';
+                // echo '<a href="addvoter.view.php"><button class="btn btn-dark text-light px-3">Back</button></a>';
+                header("Location:../admin/admin.page.php");
 
                 die();
             } catch (PDOException $e) {

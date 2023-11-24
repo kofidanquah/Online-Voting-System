@@ -8,19 +8,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $date = date("Y-m-d H:i:s");
 
     try {
-        $sql = "UPDATE electiontrigger SET STATUS = '1', END_DATE = :date WHERE ELECTION_CODE =:electionCode";
+        $sql = "UPDATE electiontrigger SET STATUS = '2', END_DATE = :date WHERE ELECTION_CODE = :electionCode";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':date', $date);
         $stmt->bindParam(':electionCode', $electionCode);
         $stmt->execute();
 
-        echo "voting ended successfully.";
-        header("Location:admin.page.php");
-        die();
+        if ($stmt) {
+            // Output the success message
+            $successMessage = "<script>alert('Election Ended.')</script>";
+
+            // Redirect to the admin page with the success message as a parameter
+            header("Location: admin.page.php?message=" . urlencode($successMessage));
+            die();
+        }
     } catch (PDOException $e) {
         echo "Database error: " . $e->getMessage();
     }
-}else{
+} else {
     echo "failed to end election";
     die();
 }

@@ -1,5 +1,6 @@
 <?php
 require "../config.php";
+
 if (isset($_SESSION["voterId"])) {
     $voterId = $_SESSION["voterId"];
     $firstname = $_SESSION["firstname"];
@@ -7,12 +8,13 @@ if (isset($_SESSION["voterId"])) {
     $status = $_SESSION["voteStatus"];
     $gender = $_SESSION["gender"];
     $image = $_SESSION["image"];
+    $electionYear = $_SESSION["electionYear"];
 } else {
     header("Location:login.view.php");
     die();
 }
 
-$sql = "SELECT * FROM electiontrigger";
+$sql = "SELECT * FROM electiontrigger WHERE ELECTION_YEAR = '$electionYear'";
 $stmt1 = $conn->prepare($sql);
 $result = $stmt1->execute();
 $trigger = $stmt1->fetch(PDO::FETCH_ASSOC);
@@ -22,6 +24,10 @@ $stmt->bindParam(":voterId", $voterId);
 $status = $stmt->execute();
 $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
+if (isset($_SESSION["successMessage"])) {
+    echo "<script>alert('". $_SESSION["successMessage"] ."')</script>";
+    unset($_SESSION["successMessage"]);
+}
 ?>
 
 
@@ -147,31 +153,31 @@ $data = $stmt->fetch(PDO::FETCH_ASSOC);
         <div class="col-md-4 my-5">
             <?php
             if ($trigger['STATUS'] == 0) {
-                echo "<h3>Election has not Started</h3>";
+                echo "<h3>Election not Started</h3>";
             } elseif ($trigger['STATUS'] == 2) {
-                echo "<h3>Election has Ended</h3>";
+                echo "<h3>Election Ended</h3>";
             ?>
                 <a href="../admin/results.php"><button class="btn btn-success text-light px-3  vote">Published Results</button></a>
                 <?php
             } else {
                 if ($data['VOTE_COUNT'] < 3) { ?>
-                    <a><button class="btn btn-success text-light px-3  vote" data-bs-toggle="modal" data-bs-target="#electionCode"> Vote now</button></a>
+                    <a><button class="btn btn-success text-light px-3  vote" data-bs-toggle="modal" data-bs-target="#electionYear"> Vote now</button></a>
                     <!-- confirm election modal -->
                     <tr>
                         <td>
-                            <div class="modal fade" id="electionCode">
+                            <div class="modal fade" id="electionYear">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <!-- modal header -->
                                         <div class="modal-header">
-                                            <h4 class="modal-title">Start Voting</h4>
+                                            <h4 class="modal-title">Start Voting?</h4>
                                             <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
                                         </div>
 
                                         <!-- modal body -->
                                         <div class="modal-body">
                                             <form method="post" action="confirmcode.php">
-                                                <input type="text" name="electionCode" placeholder="Enter Election Code" autocomplete="off" required><br>
+                                                <input type="hidden" name="electionYear" value="<?php echo $electionYear ?>" autocomplete="off" required><br>
                                                 <button type="submit" class="btn btn-success">Vote</button>
                                             </form>
                                         </div>

@@ -3,7 +3,7 @@ include "config.php";
 
 if (isset($_SESSION)) {
     $voterId = $_SESSION["voterId"];
-    $electionCode = $_SESSION["electionCode"];
+    $electionYear = $_SESSION["electionYear"];
 } else {
     header("Location:dashboard.php");
     die();
@@ -17,28 +17,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $today = date("Y-m-d");
         try {
-        $queryc = "INSERT INTO election (CAND_CODE, VOTER_ID, ELECTION_DATE, ELECTION_CODE) 
-        VALUES (:candCode, :voterId, :today, :electionCode)";
+        $queryc = "INSERT INTO election (CAND_CODE, VOTER_ID, ELECTION_DATE, ELECTION_YEAR) 
+        VALUES (:candCode, :voterId, :today, :electionYear)";
 
         $stmt1 = $conn->prepare($queryc);
         $stmt1->bindParam(':candCode', $vote1);
         $stmt1->bindParam(':voterId', $voterId);
         $stmt1->bindParam(':today', $today);
-        $stmt1->bindParam(':electionCode', $electionCode);
+        $stmt1->bindParam(':electionYear', $electionYear);
         $stmt1->execute();
 
         $stmt2 = $conn->prepare($queryc);
         $stmt2->bindParam(':candCode', $vote2);
         $stmt2->bindParam(':voterId', $voterId);
         $stmt2->bindParam(':today', $today);
-        $stmt2->bindParam(':electionCode', $electionCode);
+        $stmt2->bindParam(':electionYear', $electionYear);
         $stmt2->execute();
 
         $stmt3 = $conn->prepare($queryc);
         $stmt3->bindParam(':candCode', $vote3);
         $stmt3->bindParam(':voterId', $voterId);
         $stmt3->bindParam(':today', $today);
-        $stmt3->bindParam(':electionCode', $electionCode);
+        $stmt3->bindParam(':electionYear', $electionYear);
         $stmt3->execute();
 
 
@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($stmt1) {
             // Output the success message
-            $_SESSION["<script>alert('Voting Successful.')</script>"] = $successMessage;
+            $_SESSION["successMessage"] = 'Voting Successful';
 
             // Redirect to the admin page with the success message as a parameter
             header("Location: voter/dashboard.php");

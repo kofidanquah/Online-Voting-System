@@ -3,11 +3,11 @@ require "../config.php";
 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $electionCode = $_POST["electionCode"];
+    $electionYear = $_POST["electionYear"];
 
-    $sql = "SELECT * FROM electiontrigger  WHERE ELECTION_CODE =:electionCode AND STATUS = '1' LIMIT 1";
+    $sql = "SELECT * FROM electiontrigger  WHERE ELECTION_YEAR =:electionYear AND STATUS = '1' LIMIT 1";
     $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':electionCode', $electionCode);
+    $stmt->bindParam(':electionYear', $electionYear);
     $stmt->execute();
 
     $status = $stmt->execute();
@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->rowCount() > 0) {
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $_SESSION["electionCode"] =$data['ELECTION_CODE'];
+            $_SESSION["electionYear"] =$data['ELECTION_YEAR'];
             header("location:votingpage.php");
             die();
         } else {

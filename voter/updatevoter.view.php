@@ -1,7 +1,6 @@
 <?php
 require "../config.php";
 
-
 $id = $_GET['id'];
 $sql = "SELECT * FROM voters WHERE VOTER_ID = :id";
 $stmt = $conn->prepare($sql);
@@ -15,7 +14,7 @@ $lastname = $result['LAST_NAME'];
 $position = $result['GENDER'];
 $voterId = $result['VOTER_ID'];
 $image = $result['VOTER_IMAGE'];
-$electionCode = $result['ELECTION_CODE'];
+$electionYear = $result['ELECTION_YEAR'];
 
 ?>
 
@@ -110,9 +109,9 @@ $electionCode = $result['ELECTION_CODE'];
                 <option <?php echo $position == "Female" ? "selected" : ""; ?>>Female</option>
             </select>
         </label>
-        <input type="text" name="electionCode" value="<?php echo $electionCode; ?>">
+        <input type="hidden" name="electionYear" value="<?php echo $electionYear; ?>">
 
-        <img src="../uploads/<?php echo $image; ?>" width="100px" />
+        <input type="hidden" src="../uploads/<?php echo $image; ?>" width="100px" />
         <input type="file" name="image"><br>
         <input type="hidden" name="voterId" value="<?php echo $voterId; ?>">
         <input type="submit" name="submit" value="update" id=submit>

@@ -1,5 +1,7 @@
 <?php
 include "../config.php";
+if (isset($_SESSION["electionYear"]));
+$electionYear = $_SESSION["electionYear"];
 $searchVoter = isset($_GET["searchVoter"]);
 
 if (!empty($searchVoter)) {
@@ -13,6 +15,43 @@ if (!empty($searchVoter)) {
 
     $searchResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+try {
+    $sql = "SELECT COUNT(VOTER_ID) AS total_voters FROM voters WHERE ELECTION_YEAR = '$electionYear'";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    
+    
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+        $totalvoters = $result['total_voters'];
+    } else {
+        echo "No records found";
+    }
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
+    
+}
+
+try {
+    $sql = "SELECT COUNT(VOTER_ID) AS total_voted FROM voters WHERE STATUS='1' AND ELECTION_YEAR = '$electionYear'";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    
+    
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+        $totalvoted = $result['total_voted'];
+    } else {
+        echo "No records found";
+    }
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
+    
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -78,27 +117,60 @@ if (!empty($searchVoter)) {
             border-radius: 4px;
             box-sizing: border-box;
         }
+        .voted {
+            height: 120px;
+            margin-top: 10px;
+            width:65%;
+            text-align: center;
+            color: black;
+            padding: 20px;
+            font-size: 20px;
+        }
+
+        .total {
+            height: 120px;
+            margin-top: 10px;
+            width:65%;
+            text-align: center;
+            color: black;
+            padding: 20px;
+            font-size: 20px;
+        }
+
     </style>
     <title>voters list</title>
 </head>
 
 <body>
-    <div class="container-fluid my-5">
-        <a href="admin.page.php"><button class="btn btn-dark text-light px-3">
+    <div class="row container-fluid">
+        <div class="container-fluid col-md-4 my-5">
+            <button class="btn btn-dark text-light px-3" onclick="goBack()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z" />
                 </svg>
-                Back</button></a>
+                Back</button>
+    
+            <a href="voters.list.php"><button class="btn btn-dark px-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
+                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
+                    </svg>
+                    Reset</button></a>
+        </div>
+<div class="col-md-4 container-fluid ">
+    <button class="btn btn-info total">Total number of Registered Voters:<br>
+        <?php echo $totalvoters ?>
+    </button>
+</div>
 
-                <a href="voters.list.php"><button class="btn btn-dark px-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
-                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
-                </svg>
-                Reset</button>
-        </a>
 
+<div class="col-md-4 container-fluid">
+    <button class="btn btn-secondary voted">Voted :<br>
+        <?php echo $totalvoted ?>
+    </button>
+</div>
     </div>
+
     <div class="container-fluid search">
         <form method="get" action="<?php echo $_SERVER["PHP_SELF"] ?>">
             <input type="search" name="searchVoter" placeholder="Search Voter" required>
@@ -123,7 +195,6 @@ if (!empty($searchVoter)) {
                         <th>Gender</th>
                         <th>Voter's ID</th>
                         <th>Status</th>
-                        <th>Election Code</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -132,7 +203,7 @@ if (!empty($searchVoter)) {
 
                     if (empty($searchVoter)) {
                         try {
-                            $sql = "SELECT * FROM voters ORDER BY FIRST_NAME ASC";
+                            $sql = "SELECT * FROM voters WHERE ELECTION_YEAR = '$electionYear' ORDER BY FIRST_NAME ASC";
                             $stmt = $conn->prepare($sql);
                             $stmt->execute();
 
@@ -142,8 +213,7 @@ if (!empty($searchVoter)) {
                                 $image = $row['VOTER_IMAGE'];
                                 $voterId = $row['VOTER_ID'];
                                 $status = $row['STATUS'];
-                                $electionCode = $row['ELECTION_CODE'];
-                                                ?>
+                    ?>
                                 <tr>
                                     <td> <img src="../uploads/<?php echo $image ?>"></td>
                                     <td><?php echo $fullName ?></td>
@@ -158,7 +228,6 @@ if (!empty($searchVoter)) {
                                                 echo 'Not Voted';
                                                 break;
                                         } ?></td>
-                                        <td><?php echo $electionCode ?></td>
                                     <td>
                                         <button type=button class="btn btn-danger remove" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $voterId ?>">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
@@ -188,7 +257,7 @@ if (!empty($searchVoter)) {
 
                                                     <!-- modal body -->
                                                     <div class="modal-body">
-                                                        <a href="../delete.voter.php?deleteid=<?php echo $voterId ?>"><button class="btn btn-danger">Delete</button></a>
+                                                        <a href="../voter/delete.voter.php?deleteid=<?php echo $voterId ?>"><button class="btn btn-danger">Delete</button></a>
                                                     </div>
 
                                                 </div>
@@ -205,7 +274,6 @@ if (!empty($searchVoter)) {
                         } catch (PDOException $e) {
                             echo "Connection failed: " . $e->getMessage();
                         }
-
                     } else {
                         if ($searchResult) {
                             $sql = "SELECT * FROM voters";
@@ -217,7 +285,7 @@ if (!empty($searchVoter)) {
                                 $image = $row['CAND_IMAGE'];
                                 $candCode = $row['CAND_CODE'];
                                 $position = $row['POSITION'];
-                                
+
                             ?>
                                 <tr>
                                     <td> <img src="../uploads/<?php echo $image ?>"></td>
@@ -286,6 +354,11 @@ if (!empty($searchVoter)) {
 
     </div>
 
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
 </body>
 
 </html>

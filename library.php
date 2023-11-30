@@ -10,13 +10,13 @@ function generateCandCode($prefix = 'CAN', $length=10) {
 }
 
 
-function generateVoterCode($prefix = 'VT', $length=7) {
-    $voterCode =$prefix;
+function generateVoterId($prefix = 'VT', $length=7) {
+    $voterId =$prefix;
     for($i =strlen($prefix);$i<$length;$i++) {
         $randomCode = rand(1, 7);
-        $voterCode .= $randomCode;
+        $voterId .= $randomCode;
     }
-        return $voterCode;
+        return $voterId;
 }
 
 function generateVoterPassword($prefix = '', $length=4) {

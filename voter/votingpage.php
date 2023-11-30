@@ -3,7 +3,7 @@ require "../config.php";
 
 if (isset($_SESSION["voterId"])) {
     $voterId = $_SESSION["voterId"];
-    $electionCode = $_SESSION["electionCode"];
+    $electionYear = $_SESSION["electionYear"];
 } else {
     header("Location:login.view.php");
     die();
@@ -99,13 +99,10 @@ if (isset($_SESSION["voterId"])) {
                 Reset</button>
         </a>
 
-
-        <?php echo $voterId ?><br>
-        <?php echo $electionCode ?>
-
     </div>
 
-    <h4 class="container-fluid text-dark">Election</h4>
+    <h4 class="container-fluid text-dark">Election <?php echo $electionYear ?>
+    </h4>
     <hr>
 
     <form id="myForm" method="post" action="../updatevote.php">
@@ -130,7 +127,7 @@ if (isset($_SESSION["voterId"])) {
             <?php
             // President
 
-            $sql = "SELECT * FROM candidates WHERE POSITION='President' AND ELECTION_CODE= $electionCode ";
+            $sql = "SELECT * FROM candidates WHERE POSITION='President' AND ELECTION_YEAR= '$electionYear' ";
             $stmt = $conn->prepare($sql);
             $stmt->execute();
 
@@ -194,7 +191,7 @@ if (isset($_SESSION["voterId"])) {
             <?php
             // Vice President
 
-            $sql = "SELECT * FROM candidates WHERE POSITION='Vice President' AND ELECTION_CODE= $electionCode ";
+            $sql = "SELECT * FROM candidates WHERE POSITION='Vice President' AND ELECTION_YEAR= '$electionYear' ";
             $stmt = $conn->prepare($sql);
             $stmt->execute();
 
@@ -260,7 +257,7 @@ if (isset($_SESSION["voterId"])) {
             <?php
             // Secretary
 
-            $sql = "SELECT * FROM candidates WHERE POSITION='Secretary'  AND ELECTION_CODE= $electionCode";
+            $sql = "SELECT * FROM candidates WHERE POSITION='Secretary'  AND ELECTION_YEAR= '$electionYear'";
             $stmt = $conn->prepare($sql);
             $stmt->execute();
 
@@ -312,39 +309,16 @@ if (isset($_SESSION["voterId"])) {
 
 </body>
 <script>
-        function showConfirmation() {
-            if (confirm("Submit Vote?")) {
-                // If the user clicks "OK", submit the form
-                document.getElementById("myForm").submit();
-            } else {
-                // If the user clicks "Cancel", do nothing
-            }
-            return false;
-    
+    function showConfirmation() {
+        if (confirm("Submit Vote?")) {
+            // If the user clicks "OK", submit the form
+            document.getElementById("myForm").submit();
+        } else {
+            // If the user clicks "Cancel", do nothing
         }
-    </script>
+        return false;
 
-
-<!-- <script>
-    function confirmVote() {
-        Swal.fire({
-            title: "Submit Vote?",
-            text: "You won't be able to revert this!",
-            icon: "success",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: "Voting Successful",
-                    text: "Thank you.",
-                    icon: "success"
-                });
-            }
-        });
     }
-</script> -->
+</script>
 
 </html>

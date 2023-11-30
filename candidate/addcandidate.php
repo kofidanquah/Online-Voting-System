@@ -6,7 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $firstname = $_POST["firstname"];
     $lastname = $_POST["lastname"];
     $position = $_POST["position"];
-    $electionCode = $_POST["electionCode"];
+    $electionYear = $_POST["electionYear"];
     $email = $_POST["email"];
     $file = $_FILES["candimage"];
     $candCode = generateCandCode();
@@ -23,8 +23,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             try {
                 $candCode = generateCandCode();
 
-                $query = "INSERT INTO candidates (CAND_IMAGE, POSITION, FIRST_NAME, LAST_NAME, CAND_CODE, ELECTION_CODE, CAND_EMAIL) 
-                VALUES (:filename, :position,  :firstname, :lastname, :candCode, :electionCode, :email)";
+                $query = "INSERT INTO candidates (CAND_IMAGE, POSITION, FIRST_NAME, LAST_NAME, CAND_CODE, ELECTION_YEAR, CAND_EMAIL) 
+                VALUES (:filename, :position,  :firstname, :lastname, :candCode, :electionYear, :email)";
 
                 $stmt = $conn->prepare($query);
                 $stmt->bindParam(':filename', $filename);
@@ -32,16 +32,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bindParam(':lastname', $lastname);
                 $stmt->bindParam(':position', $position);
                 $stmt->bindParam(':candCode', $candCode);
-                $stmt->bindParam(':electionCode', $electionCode);
+                $stmt->bindParam(':electionYear', $electionYear);
                 $stmt->bindParam(':email', $email);
 
                 $stmt->execute();
 
-                echo "New candidate added successfully." . '<br>';
-                // echo '<a href="../candidate/addcandidate.view.php"><button class="btn btn-dark text-light px-3">Back</button></a>';
-                // echo '<a href="../admin/admin.page.php"><button class="btn btn-dark text-light px-3">Admin</button></a>';
-                header("Location:../admin/admin.page.php");
-                die;
+                if($stmt){
+                    $_SESSION['successMessage'] = "Candidate Added Successfully";
+            header("Location:../admin/admin.page.php?electionYear=" . $electionYear);
+                die();
+                }
             } catch (PDOException $e) {
                 echo "Database error: " . $e->getMessage();
             }

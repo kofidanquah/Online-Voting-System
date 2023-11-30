@@ -3,23 +3,23 @@ require "../config.php";
 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $electionCode = $_POST["electionCode"];
+    $electionYear = $_POST["electionYear"];
 
     $date = date("Y-m-d H:i:s");
 
     try {
-        $sql = "UPDATE electiontrigger SET STATUS = '2', END_DATE = :date WHERE ELECTION_CODE = :electionCode";
+        $sql = "UPDATE electiontrigger SET STATUS = '2', END_DATE = :date WHERE ELECTION_YEAR = :electionYear";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':date', $date);
-        $stmt->bindParam(':electionCode', $electionCode);
+        $stmt->bindParam(':electionYear', $electionYear);
         $stmt->execute();
 
         if ($stmt) {
             // Output the success message
-            $successMessage = "<script>alert('Election Ended.')</script>";
+            $_SESSION['successMessage'] = "Election Ended";
 
             // Redirect to the admin page with the success message as a parameter
-            header("Location: admin.page.php?message=" . urlencode($successMessage));
+            header("Location: admin.page.php?electionYear=" . $electionYear);
             die();
         }
     } catch (PDOException $e) {

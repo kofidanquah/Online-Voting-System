@@ -3,15 +3,15 @@ include "../config.php";
 
 $start = isset($_GET["start"]) ? date('Y-m-d', strtotime($_GET["start"])) : "";
 $end = isset($_GET["end"]) ? date('Y-m-d', strtotime($_GET["end"])) : "";
-$electionCode = $_GET["electionCode"];
+$electionYear = $_GET["electionYear"];
 if (!empty($start)  && !empty($end)) {
 
-    $sql = "SELECT CAND_CODE, COUNT(ID) AS TOTAL_VOTES FROM election WHERE ELECTION_CODE=:electionCode AND ELECTION_DATE BETWEEN :start AND :end   GROUP BY CAND_CODE";
+    $sql = "SELECT CAND_CODE, COUNT(ID) AS TOTAL_VOTES FROM election WHERE ELECTION_YEAR=:electionYear AND ELECTION_DATE BETWEEN :start AND :end   GROUP BY CAND_CODE";
 
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(":start", $start);
     $stmt->bindParam(":end", $end);
-    $stmt->bindParam(":electionCode", $electionCode);
+    $stmt->bindParam(":electionYear", $electionYear);
 
 
     $stmt->execute();
@@ -22,6 +22,11 @@ if (!empty($start)  && !empty($end)) {
     // print_r($electionResult); 
     // exit;
 }
+
+$query2 = "SELECT * FROM activeyear ORDER BY YEAR ASC";
+$stmt2 = $conn->prepare($query2);
+$stmt2->execute();
+$activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -88,9 +93,20 @@ if (!empty($start)  && !empty($end)) {
         }
 
         h4 {
-            text-align: center;
-            justify-content: center;
             font-size: 40px;
+        }
+
+        h3 {
+            text-align: center;
+        }
+        label {
+            width: 18%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
 
         .btn-success {
@@ -106,12 +122,11 @@ if (!empty($start)  && !empty($end)) {
     </header>
     <br>
     <div class="px-5">
-        <a href="admin.page.php"><button class="btn btn-dark px-4">
+        <button class="btn btn-dark px-4" onclick="goBack()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z" />
                 </svg>
                 Back</button>
-        </a>
 
         <a href="report.php"><button class="btn btn-dark px-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
@@ -127,18 +142,29 @@ if (!empty($start)  && !empty($end)) {
         <div class="row container-fluid">
             <div class="col-md-6 px-5">
                 Start Date<br>
-                <input type="date" name="start" class="date">
+                <input type="date" name="start" class="date" required>
             </div>
 
             <div class="col-md-6">
                 End Date<br>
-                <input type="date" name="end" class="date">
+                <input type="date" name="end" class="date" required>
             </div>
         </div>
         <br>
         <div>
-            <input class="px-5" name="electionCode" type="text" placeholder="Election Code" required>
-            <a><button class="btn btn-success submit">Generate</button></a>
+            <label for="electionYear" class="form-label">
+                <select name="electionYear" class="px-5 form-select" required>
+                    <option selected disabled>Year</option>
+                    <?php
+                                        foreach ($activeYear as $row) {
+                                            echo "<option>{$row['YEAR']}</option>";
+                                        } ?>
+
+                </select>
+            </label><br>
+
+            <!-- <input class="px-5" name="electionYear" type="text" placeholder="Election Year" required> -->
+            <button class="btn btn-success submit">Generate</button>
         </div>
         <br>
 
@@ -147,9 +173,8 @@ if (!empty($start)  && !empty($end)) {
     <br>
     <div class="px-5">
         <button class="btn btn-primary px-3" onclick="window.print()">Print</button>
-
     </div>
-
+    <h3>ELECTION <?php echo $electionYear ?></h3>
     <br><br>
     <div class="container">
         <table class="table table-striped table">
@@ -166,7 +191,7 @@ if (!empty($start)  && !empty($end)) {
                 <?php
                 if (!empty($start)) {
                     try {
-                        $sql = "SELECT * FROM candidates WHERE ELECTION_CODE= $electionCode";
+                        $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR= $electionYear";
                         $stmt = $conn->prepare($sql);
                         $stmt->execute();
                         $candidates = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -246,6 +271,11 @@ if (!empty($start)  && !empty($end)) {
             }
         }
     });
+
+        function goBack() {
+            window.history.back();
+        }
+
 </script>
 
 </html>

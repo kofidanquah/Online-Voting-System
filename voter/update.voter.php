@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $stmt->execute();
             echo "Profile updated successfully." . '<br>';
-            header("Location:../admin/voters.list.php");
+            header("Location:../admin/voters.list.php?electionYear=".$electionYear);
             die();
         } catch (PDOException $e) {
             echo "Database error: " . $e->getMessage();

@@ -2,20 +2,20 @@
 require "../config.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $electionCode = $_POST["electionCode"];
+    $electionYear = $_POST["electionYear"];
 
 try {
-    $query = "INSERT INTO electiontrigger (ELECTION_CODE) VALUES (:electionCode)";
+    $query = "INSERT INTO electiontrigger (ELECTION_YEAR) VALUES (:electionYear)";
     $stmt = $conn->prepare($query);
-    $stmt->bindParam(':electionCode', $electionCode);
+    $stmt->bindParam(':electionYear', $electionYear);
     $stmt->execute();
 
     if ($stmt) {
         // Output the success message
-        $_SESSION["<script>alert('Election Set Successfully.')</script>"] = $successMessage;
+        $_SESSION["successMessage"] = 'Election Set Successfully.';
 
         // Redirect to the admin page with the success message as a parameter
-        header("Location: admin.page.php");
+        header("Location: admin.page.php?electionYear=".$electionYear);
         die();
     }
 

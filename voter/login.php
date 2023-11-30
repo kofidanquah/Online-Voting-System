@@ -30,6 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION["voteStatus"] =$data['STATUS'];
                 $_SESSION['gender'] =$data['GENDER'];
                 $_SESSION['image'] =$data['VOTER_IMAGE'];
+                $_SESSION['electionYear'] =$data['ELECTION_YEAR'];
                 $_SESSION["voterId"] =$voterId;
                 $_SESSION["status"] = false;
                 // $_SESSION["message"] = "Login sucessful";

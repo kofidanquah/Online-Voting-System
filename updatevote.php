@@ -48,10 +48,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmtv->execute();
 
         if ($stmt1) {
-            // Output the success message
-            $_SESSION["successMessage"] = 'Voting Successful';
+            // Store the success message in a session
+            $_SESSION["Message"] = 'Voting Successful';
 
-            // Redirect to the admin page with the success message as a parameter
+            // Redirect to the admin page 
             header("Location: voter/dashboard.php");
             die();
         }

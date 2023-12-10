@@ -1,27 +1,18 @@
 <?php
 include "../config.php";
 
-$start = isset($_GET["start"]) ? date('Y-m-d', strtotime($_GET["start"])) : "";
-$end = isset($_GET["end"]) ? date('Y-m-d', strtotime($_GET["end"])) : "";
 $electionYear = $_GET["electionYear"];
-if (!empty($start)  && !empty($end)) {
 
-    $sql = "SELECT CAND_CODE, COUNT(ID) AS TOTAL_VOTES FROM election WHERE ELECTION_YEAR=:electionYear AND ELECTION_DATE BETWEEN :start AND :end   GROUP BY CAND_CODE";
+$sql = "SELECT CAND_CODE, COUNT(ID) AS TOTAL_VOTES FROM election WHERE ELECTION_YEAR=:electionYear GROUP BY CAND_CODE";
+$stmt = $conn->prepare($sql);
+$stmt->bindParam(":electionYear", $electionYear);
+$stmt->execute();
+$electionResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(":start", $start);
-    $stmt->bindParam(":end", $end);
-    $stmt->bindParam(":electionYear", $electionYear);
+// echo "<pre>";
+// print_r($electionResult); 
+// exit;
 
-
-    $stmt->execute();
-
-    $electionResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // echo "<pre>";
-    // print_r($electionResult); 
-    // exit;
-}
 
 $query2 = "SELECT * FROM activeyear ORDER BY YEAR ASC";
 $stmt2 = $conn->prepare($query2);
@@ -99,6 +90,7 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
         h3 {
             text-align: center;
         }
+
         label {
             width: 18%;
             padding: 12px 20px;
@@ -123,10 +115,10 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
     <br>
     <div class="px-5">
         <button class="btn btn-dark px-4" onclick="goBack()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z" />
-                </svg>
-                Back</button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z" />
+            </svg>
+            Back</button>
 
         <a href="report.php"><button class="btn btn-dark px-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
@@ -139,32 +131,17 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
     <br><br>
 
     <form action="<?php echo $_SERVER["PHP_SELF"] ?>" method="get">
-        <div class="row container-fluid">
-            <div class="col-md-6 px-5">
-                Start Date<br>
-                <input type="date" name="start" class="date" required>
-            </div>
+        <label for="electionYear" class="form-label">
+            <select name="electionYear" class="px-5 form-select" required>
+                <option selected disabled>Year</option>
+                <?php
+                foreach ($activeYear as $row) {
+                    echo "<option>{$row['YEAR']}</option>";
+                } ?>
 
-            <div class="col-md-6">
-                End Date<br>
-                <input type="date" name="end" class="date" required>
-            </div>
-        </div>
-        <br>
-        <div>
-            <label for="electionYear" class="form-label">
-                <select name="electionYear" class="px-5 form-select" required>
-                    <option selected disabled>Year</option>
-                    <?php
-                                        foreach ($activeYear as $row) {
-                                            echo "<option>{$row['YEAR']}</option>";
-                                        } ?>
-
-                </select>
-            </label><br>
-
-            <!-- <input class="px-5" name="electionYear" type="text" placeholder="Election Year" required> -->
-            <button class="btn btn-success submit">Generate</button>
+            </select>
+        </label><br>
+        <button class="btn btn-success submit">Generate</button>
         </div>
         <br>
 
@@ -172,7 +149,12 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
     <hr>
     <br>
     <div class="px-5">
-        <button class="btn btn-primary px-3" onclick="window.print()">Print</button>
+        <?php
+        if (!empty($electionYear)) {
+        ?>
+            <button class="btn btn-primary px-3" onclick="window.print()">Print</button>
+        <?php } else {
+        } ?>
     </div>
     <h3>ELECTION <?php echo $electionYear ?></h3>
     <br><br>
@@ -189,7 +171,7 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
             <tbody>
                 <?php
-                if (!empty($start)) {
+                if (!empty($electionYear)) {
                     try {
                         $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR= $electionYear";
                         $stmt = $conn->prepare($sql);
@@ -272,10 +254,9 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
         }
     });
 
-        function goBack() {
-            window.history.back();
-        }
-
+    function goBack() {
+        window.history.back();
+    }
 </script>
 
 </html>

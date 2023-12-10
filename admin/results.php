@@ -3,11 +3,15 @@ require "../config.php";
 if (isset($_SESSION["electionYear"]));
 $electionYear = $_SESSION["electionYear"];
 
-$resultSql = "SELECT `CAND_CODE`, COUNT(`ID`) AS `TOTAL_VOTES` FROM `election` GROUP BY `CAND_CODE`";
+$resultSql = "SELECT CAND_CODE, COUNT(ID) AS TOTAL_VOTES FROM election GROUP BY CAND_CODE";
 $resultStmt = $conn->prepare($resultSql);
 $resultStmt->execute();
 
 $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$url1=$_SERVER['REQUEST_URI'];
+header("Refresh: 5; URL=$url1");
+
 ?>
 
 <!DOCTYPE html>
@@ -73,6 +77,7 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
         <hr>
 <div class="container-fluid">
 
+<!-- President -->
     <table class="table table-hover">
         <h3>PRESIDENT</h3>
         <thead>
@@ -121,6 +126,7 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
 
     <br><br>
 
+    <!-- Vice President -->
     <table class="table table-hover">
         <h3>VICE PRESIDENT</h3>
         <thead>
@@ -198,7 +204,6 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
                             break;
                         }
                     }
-
             ?>
 
                     <tr>
@@ -216,15 +221,13 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
         </tbody>
     </table>
 </div>
+    </div>
 
+</body>
         <script>
             function goBack() {
                 window.history.back();
             }
         </script>
-
-
-
-</body>
 
 </html>

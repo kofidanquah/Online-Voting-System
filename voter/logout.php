@@ -2,6 +2,6 @@
 session_start();
 session_destroy();
 
-header('location:voter/login.view.php');
+header('location:login.view.php');
 die();
 ?>

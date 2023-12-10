@@ -8,31 +8,53 @@ if (isset($_SESSION["username"])) {
     header("Location:admin.login.php");
     die();
 }
+
+//selecting an active year
 $query2 = "SELECT * FROM activeyear ORDER BY YEAR ASC";
 $stmt2 = $conn->prepare($query2);
 $stmt2->execute();
 $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
+
+//creating or inserting a new year
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $newYear = $_POST['newYear'];
 
-    try {
-        $sql = "INSERT INTO activeyear (YEAR) VALUES (:newYear)";
-        $stmt1 = $conn->prepare($sql);
+    //check if Year already exists,
+    $sql = "SELECT * FROM activeyear WHERE YEAR = '$newYear'";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $stmt1->bindParam(":newYear", $newYear);
-        $stmt1->execute();
+    if ($data['YEAR'] == true) {
+        $_SESSION['successMessage'] = "Year Already Exists";
+        header("Location:admin.page.php?electionYear=" . $electionYear);
+        die();
+    } else {
 
-        if ($stmt1) {
-            $_SESSION['successMessage'] = "New Year added Successfully";
-            header("Location:../admin/admin.page.php?electionYear=" . $electionYear);
+        //if not insert new year
+        try {
+            $sql = "INSERT INTO activeyear (YEAR) VALUES (:newYear)";
+            $stmt1 = $conn->prepare($sql);
+            $stmt1->bindParam(":newYear", $newYear);
+            $stmt1->execute();
+
+            $query = "INSERT INTO electiontrigger (ELECTION_YEAR) VALUES (:newYear)";
+            $stmt = $conn->prepare($query);
+            $stmt->bindParam(':newYear', $newYear);
+            $stmt->execute();
+
+
+            $_SESSION["successMessage"] = 'New Year added Successfully.';
+            header("Location:admin.page.php");
+        } catch (PDOException $e) {
+            echo "Database error: " . $e->getMessage();
         }
-    } catch (PDOException $e) {
-        echo "Database error: " . $e->getMessage();
     }
 }
 
 
+//selecting candidates tied to the active year
 $electionYear = "";
 if (isset($_GET["electionYear"])) {
     $electionYear = $_GET["electionYear"];
@@ -47,21 +69,11 @@ if (isset($_GET["electionYear"])) {
     $activeelectionYear = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-
-// Retrieve the message from the URL
-$message = isset($_GET['message']) ? urldecode($_GET['message']) : '';
-// Display the message
-if (!empty($message)) {
-    echo '<p>' . $message . '</p>';
-}
-unset($message);
-
-
+// total number of voters
 try {
     $sql = "SELECT COUNT(VOTER_ID) AS total_voters FROM voters WHERE ELECTION_YEAR = '$electionYear'";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-
 
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -74,6 +86,8 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
+
+// total number of candidates
 try {
     $sql = "SELECT COUNT(CAND_CODE) AS total_candidates FROM candidates WHERE ELECTION_YEAR = '$electionYear'";
     $stmt = $conn->prepare($sql);
@@ -90,11 +104,24 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
-
+//display success messages stored in session
 if (isset($_SESSION["successMessage"])) {
     echo "<script>alert('" . $_SESSION["successMessage"] . "')</script>";
     unset($_SESSION["successMessage"]);
 }
+
+$query = "SELECT * FROM electiontrigger WHERE ELECTION_YEAR = '$electionYear'";
+$stmt1 = $conn->prepare($query);
+$stmt1->execute();
+$data = $stmt1->fetch(PDO::FETCH_ASSOC);
+$status = $data['STATUS'];
+
+$resultSql = "SELECT CAND_CODE, COUNT(ID) AS TOTAL_VOTES FROM election GROUP BY CAND_CODE";
+$resultStmt = $conn->prepare($resultSql);
+$resultStmt->execute();
+$electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// var_dump($status);die;
 ?>
 
 
@@ -104,9 +131,12 @@ if (isset($_SESSION["successMessage"])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://fontawesome.com/v4/icon/user">
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> -->
 
     <style>
         body {
@@ -160,24 +190,25 @@ if (isset($_SESSION["successMessage"])) {
             background-color: rgb(46, 57, 191);
             height: 120px;
             margin-top: 10px;
-            border: 2px solid black;
+            border: 1px solid black;
             text-align: center;
             color: white;
             padding: 20px;
             font-size: 16px;
-            border-radius: 10px;
+            border-radius: 0px;
         }
 
         .candidates {
             background-color: rgb(247, 110, 65);
             height: 120px;
             margin-top: 10px;
-            border: 2px solid black;
+            border: 1px solid black;
             text-align: center;
             color: white;
             padding: 20px;
             font-size: 16px;
-            border-radius: 10px;
+            border-radius: 0px;
+            width: 100%;
         }
 
         .col-lg-3 {
@@ -188,6 +219,11 @@ if (isset($_SESSION["successMessage"])) {
         .logout {
             margin-left: 60%;
         }
+
+        a {
+            text-decoration: none;
+            color: white;
+        }
     </style>
     <title>Admin</title>
 </head>
@@ -197,19 +233,17 @@ if (isset($_SESSION["successMessage"])) {
         <div class=" col-lg-3 container my-5">
             YEAR: <?php echo $electionYear ?> <br>
             <a href="../index.php"><button class="btn btn-dark text-light ">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
-                        <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z" />
-                    </svg>
+                    <i class="fa fa-home" aria-hidden="true"></i>
                     Home</button></a>
 
         </div>
 
         <div class="col-lg-3">
-            <p class="voters">Total number of Registered Voters:<br>
+            <button class="btn btn-primary voters">Total number of Registered Voters:<br>
                 <?php
                 echo $totalvoters;
                 ?>
-            </p>
+            </button><br>
             <br>
             <a href="report.php"><button class="btn btn-dark text-light px-3">Report</button></a>
             <button class="btn btn-dark text-light px-3" data-bs-toggle="modal" data-bs-target="#activeYear">Active Year</button>
@@ -250,7 +284,6 @@ if (isset($_SESSION["successMessage"])) {
 
             <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addYear">+ Add Year</button>
             <!-- add year modal -->
-
             <div class="modal fade" id="addYear">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -263,7 +296,7 @@ if (isset($_SESSION["successMessage"])) {
                         <!-- modal body -->
                         <div class="modal-body">
                             <form method="post" action="<?php echo $_SERVER["PHP_SELF"] ?>">
-                                <input type="text" name="newYear">
+                                <input type="text" name="newYear" autocomplete=off>
                                 <button class="btn btn-success">Save</button>
                             </form>
                         </div>
@@ -276,43 +309,37 @@ if (isset($_SESSION["successMessage"])) {
 
 
         <div class="col-lg-3">
-            <p class="candidates">Total number of Candidates:<br>
+            <button class="btn btn-warning candidates">Total number of Candidates:<br>
                 <?php
                 echo $totalcandidates;
                 ?>
-            </p>
+            </button><br>
             <br>
 
             <?php
             if (!empty($electionYear)) { ?>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#startModal">Start Election</button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#startModal" id="startElection">Start Election</button>
                 <!-- start election modal -->
-                <tr>
-                    <td>
-                        <div class="modal fade" id="startModal">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <!-- modal header -->
-                                    <div class="modal-header">
-                                        <h4 class="modal-title">Start Election</h4>
-                                        <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-
-                                    <!-- modal body -->
-                                    <div class="modal-body">
-                                        <form method="post" action="startelection.php">
-                                            <input type="hidden" name="electionYear" value="<?php echo $electionYear ?>" autocomplete="off" required><br>
-                                            <a><button class="btn btn-success">Start</button></a>
-                                        </form>
-                                    </div>
-
-                                </div>
+                <div class="modal fade" id="startModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <!-- modal header -->
+                            <div class="modal-header">
+                                <h4 class="modal-title">Start Election</h4>
+                                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
                             </div>
+
+                            <!-- modal body -->
+                            <div class="modal-body">
+                                <form method="post" action="startelection.php">
+                                    <input type="hidden" name="electionYear" value="<?php echo $electionYear ?>" autocomplete="off" required><br>
+                                    <a><button class="btn btn-success" id="start">Start</button></a>
+                                </form>
+                            </div>
+
                         </div>
-
-                    </td>
-
-                </tr>
+                    </div>
+                </div>
 
                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#endModal">End Election</button>
                 <!-- end election modal -->
@@ -349,15 +376,12 @@ if (isset($_SESSION["successMessage"])) {
 
         </div>
         <div class="col-lg-3">
-            <a href="admin.logout.php"><button class="btn btn-dark text-light logout">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z" />
-                        <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z" />
-                    </svg>
+
+            <a><button class="btn btn-dark text-light logout" onclick="confirmLogout()">
+                    <i class="fa fa-sign-out" aria-hidden="true"></i>
+
                     logout</button></a>
-
         </div>
-
 
     </div>
     <hr>
@@ -373,34 +397,30 @@ if (isset($_SESSION["successMessage"])) {
                 Name: <?php echo $name; ?>
             </b>
             <br><br>
-            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#setModal">Set Election</button>
-            <!-- set election modal -->
-            <tr>
-                <td>
-                    <div class="modal fade" id="setModal">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <!-- modal header -->
-                                <div class="modal-header">
-                                    <h4 class="modal-title">Set Election</h4>
-                                    <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
-                                </div>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                <i class="fa fa-bell" aria-hidden="true"></i>
+                Notification</button>
 
-                                <!-- modal body -->
-                                <div class="modal-body">
-                                    <form method="post" action="setelection.php">
-                                        <input type="text" name="electionYear" placeholder="Enter Election Code" autocomplete="off" required><br>
-                                        <a><button class="btn btn-success">Set</button></a>
-                                    </form>
-                                </div>
-
-                            </div>
+            <!-- notification modal -->
+            <div class="modal fade" id="notificationModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <!-- modal header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Notification</h4>
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
                         </div>
+
+                        <!-- modal body -->
+                        <div class="modal-body">
+                            <?php
+
+                            ?>
+                        </div>
+
                     </div>
-
-                </td>
-
-            </tr>
+                </div>
+            </div>
 
         </div>
 
@@ -408,39 +428,41 @@ if (isset($_SESSION["successMessage"])) {
             <?php
             if (!empty($electionYear)) { ?>
 
-                <a href="../candidate/addcandidate.view.php"><button type="submit" class="btn btn-success">+ Add Candidate</button></a>
-                <a href="../voter/addvoter.view.php"><button type="submit" class="btn btn-success">+ Add Voter</button></a>
-                <a href="voters.list.php"><button type="submit" class="btn btn-success">List of Voters</button></a>
+                <a href="../candidate/addcandidate.view.php"><button type="submit" class="btn btn-success">
+                        <i class="fa fa-user"></i>+ Add Candidate</button></a>
+                <a href="../voter/addvoter.view.php"><button type="submit" class="btn btn-success">
+                        <i class="fa fa-user" ></i>
+                        + Add Voter</button></a>
+                <a href="voters.list.php"><button type="submit" class="btn btn-success">
+                <i class="fa fa-list" ></i>
+                    List of Voters</button></a>
                 <a href="results.php"><button type="submit" class="btn btn-success">Results</button></a>
-            <?php } else { ?>
-
-                <button disabled class="btn btn-success">+ Add Candidate</button>
-                <button disabled class="btn btn-success">+ Add Voter</button>
-                <button disabled class="btn btn-success">List of Voters</button>
-                <button disabled class="btn btn-success">Results</button>
-            <?php
+            <?php } else {
             } ?>
             <br><br>
 
             <table class="table table-hover container-fluid">
+
+                <?php
+                ?>
                 <h5>Candidates</h5>
                 <thead>
                     <tr>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Position</th>
-                        <th>Candidate Code</th>
-                        <th>Actions</th>
+                        <th>IMAGE</th>
+                        <th>NAME</th>
+                        <th>POSITION</th>
+                        <th>CANDIDATE CODE</th>
+                        <th>ACTIONS</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
+                    $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR = $electionYear ORDER BY POSITION ASC";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->execute();
+
                     if (!empty($electionYear)) {
                         try {
-                            $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR = $electionYear ORDER BY POSITION ASC";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->execute();
-
                             if ($stmt->rowCount() > 0) {
 
                                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -449,7 +471,6 @@ if (isset($_SESSION["successMessage"])) {
                                     $image = $row['CAND_IMAGE'];
                                     $candCode = $row['CAND_CODE'];
                                     $electionYear = $row['ELECTION_YEAR'];
-
                     ?>
                                     <tr>
                                         <td> <img src="../uploads/<?php echo $image ?>"></td>
@@ -461,72 +482,63 @@ if (isset($_SESSION["successMessage"])) {
                                         ?>
                                         <td>
                                             <button type=button class="btn btn-danger remove" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $candCode ?>">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
-                                                </svg> Delete</button>
+                                                <i class="fa fa-trash" aria-hidden="true"></i> Delete</button>
                                             <input type="hidden" name="candCode">
                                             <a href="../candidate/update.candidate.view.php?id=<?php echo $candCode ?>"><button type=submit class="btn btn-primary update" value="<?php echo $candCode; ?>">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                                    </svg>
+                                                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                                                     Edit</button></a>
                                         </td>
                                     </tr>
                                     <!-- confirm delete modal -->
-                                    <tr>
-                                        <td>
-                                            <div class="modal fade" id="deleteModal<?php echo $candCode ?>">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <!-- modal header -->
-                                                        <div class="modal-header">
-                                                            <h4 class="modal-title">Confirm Delete</h4>
-                                                            <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
-                                                        </div>
-
-                                                        <!-- modal body -->
-                                                        <div class="modal-body">
-                                                            <a href="../candidate/delete.candidate.php?deleteid=<?php echo $candCode; ?>"><button class="btn btn-danger" onclick="confirmDelete()">Delete</button></a>
-
-
-
-                                                        </div>
-                                                    </div>
+                                    <div class="modal fade" id="deleteModal<?php echo $candCode ?>">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <!-- modal header -->
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title">Confirm Delete</h4>
+                                                    <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
                                                 </div>
 
-                                        </td>
+                                                <!-- modal body -->
+                                                <div class="modal-body">
+                                                    <a href="../candidate/delete.candidate.php?deleteid=<?php echo $candCode; ?>&electionYear=<?php echo $electionYear ?>">
+                                                        <button class="btn btn-danger">Delete</button></a>
 
-                                    </tr>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                     <?php }
                             } else {
-
                                 echo "<h3>No records Available</h3>";
                             }
                         } catch (PDOException $e) {
                             echo "Connection failed: " . $e->getMessage();
                         }
                     }
-                    ?>
 
-                </tbody>
-            </table>
+                    ?>
         </div>
+        </tbody>
+        </table>
+    </div>
 
     </div>
 
 </body>
 <script>
-    function confirmDelete() {
-
+    function confirmLogout() {
         Swal.fire({
-            position: "top",
-            icon: "success",
-            title: "Record deleted successfully",
-            showConfirmButton: true,
-            timer: 30000
+            position: "top-end",
+            title: "Are you sure you want to logout?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "<a href='admin.logout.php'>Logout</a>"
         })
     }
+
 </script>
 
 </html>

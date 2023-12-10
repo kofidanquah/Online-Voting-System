@@ -1,21 +1,22 @@
 <?php
-require "config.php";
+require "../config.php";
+
 
 if (isset($_GET["deleteid"])) {
     $candCode = $_GET["deleteid"];
+    $electionYear = $_GET["electionYear"];
+    
+    // var_dump($electionYear);
+    // var_dump($candCode);die;
 
     try {
-
         $query = "DELETE FROM candidates WHERE CAND_CODE=:candCode";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':candCode', $candCode);
         $stmt->execute();
-        echo "<script>
-        setTimeout(function() {
-            window.location.href = 'admin/admin.page.php';
-        }, 1000);
 
-        </script>";
+        $_SESSION['successMessage'] ="Voter deleted successfully";
+        header("Location:../admin/admin.page.php?electionYear=".$electionYear);
         die();
     } catch (PDOException $e) {
         echo "Database error: " . $e->getMessage();

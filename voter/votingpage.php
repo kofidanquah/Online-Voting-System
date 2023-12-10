@@ -8,6 +8,12 @@ if (isset($_SESSION["voterId"])) {
     header("Location:login.view.php");
     die();
 }
+
+$stmt = $conn->prepare("SELECT COUNT(ID) AS VOTE_COUNT FROM election WHERE VOTER_ID =:voterId");
+$stmt->bindParam(":voterId", $voterId);
+$status = $stmt->execute();
+$data = $stmt->fetch(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -104,207 +110,212 @@ if (isset($_SESSION["voterId"])) {
     <h4 class="container-fluid text-dark">Election <?php echo $electionYear ?>
     </h4>
     <hr>
+    <?php
+    if ($data['VOTE_COUNT'] >= 3) {
+        echo "You have Voted";
+        header("Location:dashboard.php");
+    } else {
+    ?>
+        <form id="myForm" method="post" action="../updatevote.php">
 
-    <form id="myForm" method="post" action="../updatevote.php">
-
-        <div class="vote">
-            <h4>PRESIDENT</h4><br>
-            <i class="text-success">Select your preferred Candidate</i>
-            <hr>
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>Image</h5>
-                </div>
-                <div class="col-md-4">
-                    <h5>Name</h5>
-                </div>
-                <div class="col-md-4">
-                    <h5>Actions</h5>
-                </div>
-            </div>
-            <hr>
-
-            <?php
-            // President
-
-            $sql = "SELECT * FROM candidates WHERE POSITION='President' AND ELECTION_YEAR= '$electionYear' ";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
-
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            if ($result) {
-                foreach ($result as $row) {
-                    $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
-                    $position = $row['POSITION'];
-                    $image = $row['CAND_IMAGE'];
-                    $candCode = $row['CAND_CODE'];
-            ?>
-
-                    <div class="row">
-                        <div class="col-md-4">
-                            <img src="../uploads/<?php echo $image ?> " alt="img"><br><br>
-
-                        </div>
-
-                        <div class="col-md-4">
-                            <!-- info -->
-                            <?php echo $fullName . '<br>' . $candCode ?>
-
-                        </div>
-
-
-                        <div class="col-md-4">
-                            <input type="radio" id="submit" name="vote1" value="<?php echo $candCode ?>" required><br>
-                        </div>
-                        <br>
-                        <br>
+            <div class="vote">
+                <h4>PRESIDENT</h4><br>
+                <i class="text-success">Select your preferred Candidate</i>
+                <hr>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5>Image</h5>
                     </div>
-                    <hr>
-            <?php
-                }
-            } else {
-                echo "No Records Available";
-            }
-            ?>
-
-        </div>
-        <br>
-
-        <div class="vote">
-            <h4>VICE PRESIDENT</h4><br>
-            <i class="text-success">Select your preferred Candidate</i>
-            <hr>
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>Image</h5>
-                </div>
-                <div class="col-md-4">
-                    <h5>Name</h5>
-                </div>
-                <div class="col-md-4">
-                    <h5>Actions</h5>
-                </div>
-            </div>
-            <hr>
-
-            <?php
-            // Vice President
-
-            $sql = "SELECT * FROM candidates WHERE POSITION='Vice President' AND ELECTION_YEAR= '$electionYear' ";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
-
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            if ($result) {
-                foreach ($result as $row) {
-                    $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
-                    $position = $row['POSITION'];
-                    $image = $row['CAND_IMAGE'];
-                    $candCode = $row['CAND_CODE'];
-            ?>
-
-                    <div class="row">
-                        <div class="col-md-4">
-                            <img src="../uploads/<?php echo $image ?> " alt="img"><br><br>
-
-                        </div>
-
-                        <div class="col-md-4">
-                            <!-- info -->
-                            <?php echo $fullName . '<br>' . $candCode ?>
-
-                        </div>
-
-
-
-                        <div class="col-md-4">
-                            <input type="radio" id="submit" name="vote2" value="<?php echo $candCode ?>" style="height:100px; width=100px;" required><br>
-                            <input type=hidden name="candCode2" value="<?php echo $candCode ?>">
-                        </div>
-                        <br>
-                        <br>
+                    <div class="col-md-4">
+                        <h5>Name</h5>
                     </div>
-                    <hr>
-            <?php
-                }
-            } else {
-                echo "No Records Available";
-            }
-            ?>
-
-        </div>
-        <br>
-
-        <div class="vote">
-            <h4>SECRETARY</h4><br>
-            <i class="text-success">Select your preferred Candidate</i>
-            <hr>
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>Image</h5>
-                </div>
-                <div class="col-md-4">
-                    <h5>Name</h5>
-                </div>
-                <div class="col-md-4">
-                    <h5>Actions</h5>
-                </div>
-            </div>
-            <hr>
-
-            <?php
-            // Secretary
-
-            $sql = "SELECT * FROM candidates WHERE POSITION='Secretary'  AND ELECTION_YEAR= '$electionYear'";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
-
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            if ($result) {
-                foreach ($result as $row) {
-                    $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
-                    $position = $row['POSITION'];
-                    $image = $row['CAND_IMAGE'];
-                    $candCode = $row['CAND_CODE'];
-            ?>
-
-                    <div class="row">
-                        <div class="col-md-4">
-                            <img src="../uploads/<?php echo $image ?> " alt="img"><br><br>
-
-                        </div>
-
-                        <div class="col-md-4">
-                            <!-- info -->
-                            <?php echo $fullName . '<br>' . $candCode ?>
-
-                        </div>
-
-
-
-                        <div class="col-md-4">
-                            <input type="radio" id="submit" name="vote3" value="<?php echo $candCode ?>" style="height:100px; width=100px;" required><br>
-                            <input type=hidden name="candCode3" value="<?php echo $candCode ?>">
-                        </div>
-                        <br>
-                        <br>
+                    <div class="col-md-4">
+                        <h5>Actions</h5>
                     </div>
-                    <hr>
-            <?php
+                </div>
+                <hr>
+
+                <?php
+                // President
+
+                $sql = "SELECT * FROM candidates WHERE POSITION='President' AND ELECTION_YEAR= '$electionYear' ";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+
+                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if ($result) {
+                    foreach ($result as $row) {
+                        $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
+                        $position = $row['POSITION'];
+                        $image = $row['CAND_IMAGE'];
+                        $candCode = $row['CAND_CODE'];
+                ?>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="../uploads/<?php echo $image ?> " alt="img"><br><br>
+
+                            </div>
+
+                            <div class="col-md-4">
+                                <!-- info -->
+                                <?php echo $fullName . '<br>' . $candCode ?>
+
+                            </div>
+
+
+                            <div class="col-md-4">
+                                <input type="radio" id="submit" name="vote1" value="<?php echo $candCode ?>" required><br>
+                            </div>
+                            <br>
+                            <br>
+                        </div>
+                        <hr>
+                <?php
+                    }
+                } else {
+                    echo "No Records Available";
                 }
-            } else {
-                echo "No Records Available";
-            }
-            ?>
+                ?>
 
-        </div>
-        <br>
-        <a><button class="btn btn-success text-light px-3 btn-center submit" onclick="return showConfirmation()">Submit Ballot</button></a>
-    </form>
+            </div>
+            <br>
 
+            <div class="vote">
+                <h4>VICE PRESIDENT</h4><br>
+                <i class="text-success">Select your preferred Candidate</i>
+                <hr>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5>Image</h5>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Name</h5>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Actions</h5>
+                    </div>
+                </div>
+                <hr>
+
+                <?php
+                // Vice President
+
+                $sql = "SELECT * FROM candidates WHERE POSITION='Vice President' AND ELECTION_YEAR= '$electionYear' ";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+
+                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if ($result) {
+                    foreach ($result as $row) {
+                        $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
+                        $position = $row['POSITION'];
+                        $image = $row['CAND_IMAGE'];
+                        $candCode = $row['CAND_CODE'];
+                ?>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="../uploads/<?php echo $image ?> " alt="img"><br><br>
+
+                            </div>
+
+                            <div class="col-md-4">
+                                <!-- info -->
+                                <?php echo $fullName . '<br>' . $candCode ?>
+
+                            </div>
+
+
+
+                            <div class="col-md-4">
+                                <input type="radio" id="submit" name="vote2" value="<?php echo $candCode ?>" style="height:100px; width=100px;" required><br>
+                                <input type=hidden name="candCode2" value="<?php echo $candCode ?>">
+                            </div>
+                            <br>
+                            <br>
+                        </div>
+                        <hr>
+                <?php
+                    }
+                } else {
+                    echo "No Records Available";
+                }
+                ?>
+
+            </div>
+            <br>
+
+            <div class="vote">
+                <h4>SECRETARY</h4><br>
+                <i class="text-success">Select your preferred Candidate</i>
+                <hr>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5>Image</h5>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Name</h5>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Actions</h5>
+                    </div>
+                </div>
+                <hr>
+
+                <?php
+                // Secretary
+
+                $sql = "SELECT * FROM candidates WHERE POSITION='Secretary'  AND ELECTION_YEAR= '$electionYear'";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+
+                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if ($result) {
+                    foreach ($result as $row) {
+                        $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
+                        $position = $row['POSITION'];
+                        $image = $row['CAND_IMAGE'];
+                        $candCode = $row['CAND_CODE'];
+                ?>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="../uploads/<?php echo $image ?> " alt="img"><br><br>
+
+                            </div>
+
+                            <div class="col-md-4">
+                                <!-- info -->
+                                <?php echo $fullName . '<br>' . $candCode ?>
+
+                            </div>
+
+
+
+                            <div class="col-md-4">
+                                <input type="radio" id="submit" name="vote3" value="<?php echo $candCode ?>" style="height:100px; width=100px;" required><br>
+                                <input type=hidden name="candCode3" value="<?php echo $candCode ?>">
+                            </div>
+                            <br>
+                            <br>
+                        </div>
+                        <hr>
+                <?php
+                    }
+                } else {
+                    echo "No Records Available";
+                }
+                ?>
+
+            </div>
+            <br>
+            <a><button class="btn btn-success text-light px-3 btn-center submit" onclick="return showConfirmation()">Submit Ballot</button></a>
+        </form>
+    <?php } ?>
 
 
 </body>

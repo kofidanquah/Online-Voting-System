@@ -7,17 +7,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $date = date("Y-m-d H:i:s");
 
+    //check if election has already been started
     $query = "SELECT * FROM electiontrigger WHERE ELECTION_YEAR = '$electionYear'";
     $stmt1 = $conn->prepare($query);
     $stmt1->execute();
     $data = $stmt1->fetch(PDO::FETCH_ASSOC);
 
-// var_dump($data);die;
     if ($data['STATUS'] == '1') {
-        $_SESSION['successMessage'] = "Elections Started Already";
+        $_SESSION['successMessage'] = "Election has already Started!";
         header("Location:../admin/admin.page.php?electionYear=" . $electionYear);
-    }else {
-
+    }elseif($data['STATUS'] == '2') {
+        $_SESSION['successMessage'] = "Election Ended Already!";
+        header("Location:../admin/admin.page.php?electionYear=" . $electionYear);
+    }else{
     try {
         $sql = "UPDATE electiontrigger SET STATUS = '1', START_DATE = :date WHERE ELECTION_YEAR = :electionYear";
         $stmt = $conn->prepare($sql);
@@ -29,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Output the success message
             $_SESSION['successMessage'] = "Election Started successfully";
 
-            // Redirect to the admin page with the success message as a parameter
+            // Redirect to the admin page with the electionYear
             header("Location: admin.page.php?electionYear=" . $electionYear);
             die();
         } 
@@ -42,6 +44,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: admin.page.php?electionYear=" . $electionYear);
     die();
 }
-
-
 ?>

@@ -235,7 +235,6 @@ li:hover{
 </div><br><br>
 
 </nav>
-<!-- <img src="images/sunset.png"> -->
 <img src="images/voting.png" id="main"><br><br></br>
 
 <div class="row container-fluid">

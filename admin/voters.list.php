@@ -2,28 +2,20 @@
 include "../config.php";
 if (isset($_SESSION["electionYear"]));
 $electionYear = $_SESSION["electionYear"];
-$searchVoter = isset($_GET["searchVoter"]);
+$search = $_GET["search"];
 
-if (!empty($searchVoter)) {
-    $searchVoter = $_POST["searchVoter"];
+// var_dump($gender);die;
 
-    $sql = "SELECT * FROM voters WHERE FIRST_NAME = :searchVoter";
-    $stmt = $conn->prepare($sql);
 
-    $stmt->bindParam(":searchVoter", $searchVoter);
-    $stmt->execute();
-
-    $searchResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
+//count total number of voters
 try {
     $sql = "SELECT COUNT(VOTER_ID) AS total_voters FROM voters WHERE ELECTION_YEAR = '$electionYear'";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    
-    
+
+
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($result) {
         $totalvoters = $result['total_voters'];
     } else {
@@ -31,17 +23,18 @@ try {
     }
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
-    
 }
 
+
+//count total number of voters who have voted
 try {
     $sql = "SELECT COUNT(VOTER_ID) AS total_voted FROM voters WHERE STATUS='1' AND ELECTION_YEAR = '$electionYear'";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    
-    
+
+
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($result) {
         $totalvoted = $result['total_voted'];
     } else {
@@ -49,7 +42,12 @@ try {
     }
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
-    
+}
+
+
+if (isset($_SESSION["successMessage"])) {
+    echo "<script>alert('" . $_SESSION["successMessage"] . "')</script>";
+    unset($_SESSION["successMessage"]);
 }
 
 ?>
@@ -60,6 +58,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -110,17 +109,18 @@ try {
 
         input {
             width: 35%;
-            padding: 12px 20px;
+            padding: 8px 20px;
             margin: 8px 0;
             display: inline-block;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
         }
+
         .voted {
             height: 120px;
             margin-top: 10px;
-            width:65%;
+            width: 65%;
             text-align: center;
             color: black;
             padding: 20px;
@@ -130,13 +130,16 @@ try {
         .total {
             height: 120px;
             margin-top: 10px;
-            width:65%;
+            width: 65%;
             text-align: center;
             color: black;
             padding: 20px;
             font-size: 20px;
         }
 
+        form {
+            margin-left: 30%;
+        }
     </style>
     <title>voters list</title>
 </head>
@@ -145,35 +148,28 @@ try {
     <div class="row container-fluid">
         <div class="container-fluid col-md-4 my-5">
             <button class="btn btn-dark text-light px-3" onclick="goBack()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z" />
-                </svg>
-                Back</button>
-    
+                <i class="fa fa-arrow-left"></i> Back</button>
+
             <a href="voters.list.php"><button class="btn btn-dark px-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
-                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
-                    </svg>
-                    Reset</button></a>
+                    <i class="fa fa-refresh"></i> Reset</button></a>
         </div>
-<div class="col-md-4 container-fluid ">
-    <button class="btn btn-info total">Total number of Registered Voters:<br>
-        <?php echo $totalvoters ?>
-    </button>
-</div>
+        <div class="col-md-4 container-fluid ">
+            <button class="btn btn-info total">Total number of Registered Voters:<br>
+                <?php echo $totalvoters ?>
+            </button>
+        </div>
 
 
-<div class="col-md-4 container-fluid">
-    <button class="btn btn-secondary voted">Voted :<br>
-        <?php echo $totalvoted ?>
-    </button>
-</div>
+        <div class="col-md-4 container-fluid">
+            <button class="btn btn-secondary voted">Voted :<br>
+                <?php echo $totalvoted ?>
+            </button>
+        </div>
     </div>
 
     <div class="container-fluid search">
         <form method="get" action="<?php echo $_SERVER["PHP_SELF"] ?>">
-            <input type="search" name="searchVoter" placeholder="Search Voter" required>
+            <input type="search" name="search" placeholder="Search" autocomplete="off" required>
             <button type="submit" class="btn btn-success">Search</button>
         </form>
     </div>
@@ -190,22 +186,23 @@ try {
                 <h3>Voters Register</h3>
                 <thead>
                     <tr>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Gender</th>
-                        <th>Voter's ID</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th>IMAGE</th>
+                        <th>NAME</th>
+                        <th>GENDER</th>
+                        <th>VOTER'S ID</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
+                    if (!empty($search)) {
+                        $query = "SELECT * FROM voters WHERE FIRST_NAME LIKE :search OR LAST_NAME LIKE :search OR GENDER  LIKE :search OR VOTER_ID LIKE :search";
+                        $stmt = $conn->prepare($query);
+                        $stmt->bindParam(":search", $search);
+                        $stmt->execute();
 
-                    if (empty($searchVoter)) {
-                        try {
-                            $sql = "SELECT * FROM voters WHERE ELECTION_YEAR = '$electionYear' ORDER BY FIRST_NAME ASC";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->execute();
+                        if ($stmt->rowCount() > 0) {
 
                             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                 $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
@@ -230,121 +227,110 @@ try {
                                         } ?></td>
                                     <td>
                                         <button type=button class="btn btn-danger remove" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $voterId ?>">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
-                                            </svg> Delete</button>
+                                            <i class="fa fa-trash"></i> Delete</button>
                                         <input type="hidden" name="voterId">
                                         <a href="../voter/updatevoter.view.php?id=<?php echo $voterId ?>"><button type=submit class="btn btn-primary update" value="<?php echo $voterId; ?>">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                                </svg>
-                                                Edit</button></a>
+                                                <i class="fa fa-pencil-square-o"></i> Edit</button></a>
                                     </td>
                                 </tr>
                                 <!-- confirm delete modal -->
-                                <tr>
-                                    <td>
-                                        <div class="modal" id="deleteModal<?php echo $voterId ?>">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <!-- modal header -->
-                                                    <div class="modal-header">
-                                                        <h4 class="modal-title">Confirm Delete</h4>
-                                                        <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+                                <div class="modal" id="deleteModal<?php echo $voterId ?>">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <!-- modal header -->
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Confirm Delete</h4>
+                                                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+
+                                            </div>
+
+                                            <!-- modal body -->
+                                            <div class="modal-body">
+                                                <a href="../voter/delete.voter.php?deleteid=<?php echo $voterId ?>"><button class="btn btn-danger">Delete</button></a>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                        <?php
+                            }
+                        }
+
+                        ?>
+                        <?php
+                    } else {
+
+
+                        try {
+                            $sql = "SELECT * FROM voters WHERE ELECTION_YEAR = '$electionYear' ORDER BY FIRST_NAME ASC";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->execute();
+
+                            if ($stmt->rowCount() > 0) {
+                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                    $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
+                                    $gender = $row['GENDER'];
+                                    $image = $row['VOTER_IMAGE'];
+                                    $voterId = $row['VOTER_ID'];
+                                    $status = $row['STATUS'];
+                        ?>
+                                    <tr>
+                                        <td> <img src="../uploads/<?php echo $image ?>"></td>
+                                        <td><?php echo $fullName ?></td>
+                                        <td><?php echo $gender ?></td>
+                                        <td><?php echo $voterId ?></td>
+                                        <td><?php switch ($status) {
+                                                case '1':
+                                                    echo 'Voted';
+                                                    break;
+                                                default:
+                                                    echo 'Not Voted';
+                                                    break;
+                                            } ?></td>
+                                        <td>
+                                            <button type=button class="btn btn-danger remove" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $voterId ?>">
+                                                <i class="fa fa-trash"></i> Delete</button>
+                                            <input type="hidden" name="voterId">
+                                            <a href="../voter/updatevoter.view.php?id=<?php echo $voterId ?>"><button type=submit class="btn btn-primary update" value="<?php echo $voterId; ?>">
+                                                    <i class="fa fa-pencil-square-o"></i> Edit</button></a>
+                                        </td>
+                                    </tr>
+                                    <!-- confirm delete modal -->
+                                    <tr>
+                                        <td>
+                                            <div class="modal" id="deleteModal<?php echo $voterId ?>">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <!-- modal header -->
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Confirm Delete</h4>
+                                                            <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+
+                                                        </div>
+
+                                                        <!-- modal body -->
+                                                        <div class="modal-body">
+                                                            <a href="../voter/delete.voter.php?deleteid=<?php echo $voterId ?>"><button class="btn btn-danger">Delete</button></a>
+                                                        </div>
 
                                                     </div>
-
-                                                    <!-- modal body -->
-                                                    <div class="modal-body">
-                                                        <a href="../voter/delete.voter.php?deleteid=<?php echo $voterId ?>"><button class="btn btn-danger">Delete</button></a>
-                                                    </div>
-
                                                 </div>
                                             </div>
-                                        </div>
 
-                                    </td>
+                                        </td>
 
-                                </tr>
+                                    </tr>
 
 
-                            <?php
+                    <?php
+                                }
+                            } else {
+                                echo "No Records found.";
                             }
                         } catch (PDOException $e) {
                             echo "Connection failed: " . $e->getMessage();
                         }
-                    } else {
-                        if ($searchResult) {
-                            $sql = "SELECT * FROM voters";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->execute();
-
-                            foreach ($stmt as $row) {
-                                $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
-                                $image = $row['CAND_IMAGE'];
-                                $candCode = $row['CAND_CODE'];
-                                $position = $row['POSITION'];
-
-                            ?>
-                                <tr>
-                                    <td> <img src="../uploads/<?php echo $image ?>"></td>
-                                    <td><?php echo $fullName ?></td>
-                                    <td><?php echo $gender ?></td>
-                                    <td><?php echo $voterId ?></td>
-                                    <td><?php switch ($status) {
-                                            case '1':
-                                                echo 'Voted';
-                                                break;
-
-                                            default:
-                                                echo 'Not Voted';
-                                                break;
-                                        } ?>
-                                    </td>
-                                    <td>
-                                        <button type=button class="btn btn-danger remove" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $voterId ?>">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
-                                            </svg> Delete</button>
-                                        <input type="hidden" name="voterId">
-                                        <a href="../voter/updatevoter.view.php?id=<?php echo $voterId ?>"><button type=submit class="btn btn-primary update" value="<?php echo $voterId; ?>">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                                </svg>
-                                                Edit</button></a>
-                                    </td>
-                                </tr>
-                                <!-- confirm delete modal -->
-                                <tr>
-                                    <td>
-                                        <div class="modal" id="deleteModal<?php echo $voterId ?>">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <!-- modal header -->
-                                                    <div class="modal-header">
-                                                        <h4 class="modal-title">Confirm Delete</h4>
-                                                        <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
-
-                                                    </div>
-
-                                                    <!-- modal body -->
-                                                    <div class="modal-body">
-                                                        <a href="../delete.voter.php?deleteid=<?php echo $voterId ?>"><button class="btn btn-danger">Delete</button></a>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-                    <?php }
-                        }
                     }
-
                     ?>
                 </tbody>
 

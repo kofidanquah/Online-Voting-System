@@ -24,10 +24,13 @@ $stmt->bindParam(":voterId", $voterId);
 $status = $stmt->execute();
 $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (isset($_SESSION["successMessage"])) {
-    echo "<script>alert('". $_SESSION["successMessage"] ."')</script>";
-    unset($_SESSION["successMessage"]);
+if (isset($_SESSION["Message"])) {
+    echo "<script>alert('" . $_SESSION["Message"] . "')</script>";
+    unset($_SESSION["Message"]);
 }
+
+    $url1=$_SERVER['REQUEST_URI'];
+    header("Refresh: 5; URL=$url1");
 ?>
 
 
@@ -37,10 +40,11 @@ if (isset($_SESSION["successMessage"])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
     <style>
         body {
@@ -88,9 +92,10 @@ if (isset($_SESSION["successMessage"])) {
             border-radius: 10px;
         }
 
-        .vote {
+        .btn-success {
             height: 60px;
             width: 50%;
+
         }
 
         h3 {
@@ -115,6 +120,11 @@ if (isset($_SESSION["successMessage"])) {
             border-radius: 4px;
             box-sizing: border-box;
         }
+        a{
+            text-decoration: none;
+            color: white;
+        }
+
     </style>
 
     <title>dashboard</title>
@@ -122,27 +132,21 @@ if (isset($_SESSION["successMessage"])) {
 </head>
 
 <body>
-    <script>
-    </script>
     <header class="header text-dark text-center px-3 container-fluid">
         <h2>VOTING SYSTEM</h2>
     </header>
     <h3>
-            <p id="demo"></p> &nbsp; <?php echo $firstname . " " . $lastname; ?>
-        </h3>
+        <p id="demo"></p> &nbsp; <?php echo $firstname . " " . $lastname; ?>
+    </h3>
 
     <div class="row container-fluid">
         <div class="col-md-4 container my-5">
-            <a href="../logout.php"><button class="btn btn-dark text-light px-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z" />
-                        <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z" />
-                    </svg>
-                    Log out</button></a>
+            <button class="btn btn-dark text-light px-3" onclick="confirmLogout()">
+            <i class="fa fa-sign-out"></i>
+                    Log out</button>
 
-            <a href="../index.php"><button class="btn btn-dark text-light px-3"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
-                        <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z" />
-                    </svg>
+            <a href="../index.php"><button class="btn btn-dark text-light px-3">
+            <i class="fa fa-home"></i>
                     Home
                 </button></a>
         </div>
@@ -150,44 +154,18 @@ if (isset($_SESSION["successMessage"])) {
         <div class="col-md-4">
         </div>
 
-        <div class="col-md-4 my-5">
+        <div class="col-md-4 my-5" id="voteDiv">
             <?php
             if ($trigger['STATUS'] == 0) {
                 echo "<h3>Election not Started</h3>";
             } elseif ($trigger['STATUS'] == 2) {
                 echo "<h3>Election Ended</h3>";
             ?>
-                <a href="../admin/results.php"><button class="btn btn-success text-light px-3  vote">Published Results</button></a>
+                <a href="../admin/results.php"><button class="btn btn-success text-light px-3">Results</button></a>
                 <?php
             } else {
                 if ($data['VOTE_COUNT'] < 3) { ?>
-                    <a><button class="btn btn-success text-light px-3  vote" data-bs-toggle="modal" data-bs-target="#electionYear"> Vote now</button></a>
-                    <!-- confirm election modal -->
-                    <tr>
-                        <td>
-                            <div class="modal fade" id="electionYear">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <!-- modal header -->
-                                        <div class="modal-header">
-                                            <h4 class="modal-title">Start Voting?</h4>
-                                            <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-
-                                        <!-- modal body -->
-                                        <div class="modal-body">
-                                            <form method="post" action="confirmcode.php">
-                                                <input type="hidden" name="electionYear" value="<?php echo $electionYear ?>" autocomplete="off" required><br>
-                                                <button type="submit" class="btn btn-success">Vote</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </td>
-
-                    </tr>
+                    <a href="votingpage.php"><button class="btn btn-success text-light px-3"> Vote now</button></a>
             <?php } else {
                     echo "<h3>You have voted</h3>";
                 }
@@ -232,21 +210,34 @@ if (isset($_SESSION["successMessage"])) {
 
         </div>
     </div>
-<?php 
-// Retrieve the message from the session
-$message = isset($_SESSION['successMessage']) ? $_SESSION['successMessage'] : '';
+    <?php
+    // Retrieve the message from the session
+    $message = isset($_SESSION['successMessage']) ? $_SESSION['successMessage'] : '';
 
-// Display the message
-if (!empty($message)) {
-    echo '<p>' . $message . '</p>';
+    // Display the message
+    if (!empty($message)) {
+        echo '<p>' . $message . '</p>';
 
-    // Clear the session variable to prevent displaying the message on subsequent reloads
-    unset($_SESSION['successMessage']);
-}
-?>
+        // Clear the session variable to prevent displaying the message on subsequent reloads
+        unset($_SESSION['successMessage']);
+    }
+    ?>
 </body>
 
 <script>
+    function confirmLogout() {
+    Swal.fire({
+        position: "top-start",
+        title: "Are you sure you want to logout?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "<a href='logout.php'>Logout</a>"
+    })
+        }
+
+
     const time = new Date().getHours();
     let greeting;
     if (time < 10) {
@@ -257,7 +248,20 @@ if (!empty($message)) {
         greeting = "Good evening";
     }
     document.getElementById("demo").innerHTML = greeting;
-</script>
 
+
+    // $(document).ready(function() {
+    //     setInterval(function() {
+    //         $.ajax({
+    //             type: 'POST',
+    //             url: '../admin/startelection.php',
+    //             data: {},
+    //             success: function(e) {
+    //             },
+    //         });
+    //         $('#voteDiv').contentWindow.location.reload(true);   
+    //     }, 1000);
+    // });
+</script>
 
 </html>

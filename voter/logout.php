@@ -2,6 +2,6 @@
 session_start();
 session_destroy();
 
-header('location:login.view.php');
+header('location:../index.php');
 die();
 ?>

@@ -24,10 +24,6 @@ $stmt->bindParam(":voterId", $voterId);
 $status = $stmt->execute();
 $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (isset($_SESSION["Message"])) {
-    echo "<script>alert('" . $_SESSION["Message"] . "')</script>";
-    unset($_SESSION["Message"]);
-}
 
     $url1=$_SERVER['REQUEST_URI'];
     header("Refresh: 5; URL=$url1");
@@ -52,6 +48,7 @@ if (isset($_SESSION["Message"])) {
             background-repeat: no-repeat;
             background-size: cover;
             width: auto;
+            height:120vh;
         }
 
         h5 {
@@ -81,15 +78,15 @@ if (isset($_SESSION["Message"])) {
             font-family: cursive;
         }
 
-        .col-md-5 {
+        .col-lg-5 {
             background-color: rgb(241, 241, 241);
-            height: 400px;
+            height: max-content;
             box-shadow: -10px 10px 10px;
             border: 2px solid black;
             padding: 20px;
             margin: auto;
-            width: 60%;
             border-radius: 10px;
+            /* width:60%; */
         }
 
         .btn-success {
@@ -125,6 +122,9 @@ if (isset($_SESSION["Message"])) {
             color: white;
         }
 
+.logout{
+margin-left:150px;
+}
     </style>
 
     <title>dashboard</title>
@@ -140,26 +140,22 @@ if (isset($_SESSION["Message"])) {
     </h3>
 
     <div class="row container-fluid">
-        <div class="col-md-4 container my-5">
-            <button class="btn btn-dark text-light px-3" onclick="confirmLogout()">
-            <i class="fa fa-sign-out"></i>
-                    Log out</button>
-
+        <div class="col-md-3 container my-5">            
             <a href="../index.php"><button class="btn btn-dark text-light px-3">
-            <i class="fa fa-home"></i>
+                <i class="fa fa-home"></i>
                     Home
                 </button></a>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-3">
         </div>
-
-        <div class="col-md-4 my-5" id="voteDiv">
+        
+        <div class="col-md-3 my-5" id="voteDiv">
             <?php
             if ($trigger['STATUS'] == 0) {
-                echo "<h3>Election not Started</h3>";
+                echo "<h4>Election not Started</h4>";
             } elseif ($trigger['STATUS'] == 2) {
-                echo "<h3>Election Ended</h3>";
+                echo "<h4>Election Ended</h4>";
             ?>
                 <a href="../admin/results.php"><button class="btn btn-success text-light px-3">Results</button></a>
                 <?php
@@ -167,25 +163,30 @@ if (isset($_SESSION["Message"])) {
                 if ($data['VOTE_COUNT'] < 3) { ?>
                     <a href="votingpage.php"><button class="btn btn-success text-light px-3"> Vote now</button></a>
             <?php } else {
-                    echo "<h3>You have voted</h3>";
+                    echo "<h4>You have voted</h4>";
                 }
             }
-
+            
             ?>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-dark text-light px-3 my-5 logout" onclick="confirmLogout()">
+            <i class="fa fa-sign-out"></i>
+                    Log out</button>
+
         </div>
     </div>
 
-    <h4 class="container-fluid text-dark">Dashboard</h4>
     <hr><br>
 
-    <div class="col-md-5">
+    <div class="col-lg-5">
         <!--voter-->
         <h5>PROFILE</h5>
         <?php echo '<img src="../uploads/' . $image . '" >' ?>
         <br><br>
 
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-md-6">
                 <p>
                     NAME: <?php echo $firstname . " " . $lastname; ?>
                     <br><br>
@@ -194,7 +195,7 @@ if (isset($_SESSION["Message"])) {
                 </p>
             </div>
 
-            <div class="col-sm-6">
+            <div class="col-md-6 profile">
                 <p>
                     STATUS: <?php
                             if ($data['VOTE_COUNT'] >= 3) {
@@ -210,32 +211,25 @@ if (isset($_SESSION["Message"])) {
 
         </div>
     </div>
-    <?php
-    // Retrieve the message from the session
-    $message = isset($_SESSION['successMessage']) ? $_SESSION['successMessage'] : '';
-
-    // Display the message
-    if (!empty($message)) {
-        echo '<p>' . $message . '</p>';
-
-        // Clear the session variable to prevent displaying the message on subsequent reloads
-        unset($_SESSION['successMessage']);
-    }
-    ?>
 </body>
 
 <script>
     function confirmLogout() {
     Swal.fire({
-        position: "top-start",
         title: "Are you sure you want to logout?",
         icon: "warning",
+        html: "<form id='logout' action='logout.php' method='POST'>" +
+            "</form>",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "<a href='logout.php'>Logout</a>"
-    })
+        confirmButtonText: "Logout",
+        preConfirm: function() {
+            document.getElementById('logout').submit();
         }
+
+    })
+}
 
 
     const time = new Date().getHours();

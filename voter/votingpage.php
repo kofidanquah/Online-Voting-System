@@ -330,6 +330,21 @@ $data = $stmt->fetch(PDO::FETCH_ASSOC);
         return false;
 
     }
+
+    function confirmVote() {
+        Swal.fire({
+        position: "top",
+        title: "Do you want to End the Election?",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "End",
+        preConfirm: function() {
+            document.getElementById('myForm').submit();
+        }
+    });
+}
+
 </script>
 
 </html>

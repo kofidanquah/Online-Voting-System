@@ -1,5 +1,14 @@
 <?php
 include "../config.php";
+if (isset($_SESSION["username"])) {
+    $name = $_SESSION["username"];
+} else {
+    header("Location:admin.login.php");
+    die();
+}
+
+if (isset($_SESSION["electionYear"]));
+$selectedYear = $_SESSION["electionYear"];
 
 $electionYear = $_GET["electionYear"];
 
@@ -28,6 +37,7 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
@@ -41,30 +51,6 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
         img {
             height: 100px;
             width: 100px;
-        }
-
-        .date {
-            width: 60%;
-            padding: 12px 20px;
-            margin: 8px 0;
-            display: inline-block;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            align-items: center;
-            justify-content: center;
-        }
-
-        input {
-            padding: 12px 20px;
-            margin: 8px 0;
-            display: inline-block;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            align-items: center;
-            justify-content: center;
-
         }
 
         table {
@@ -101,9 +87,6 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
             box-sizing: border-box;
         }
 
-        .btn-success {
-            margin-left: 70%;
-        }
     </style>
     <title>Report</title>
 </head>
@@ -112,19 +95,16 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
     <header class="header text-dark text-center px-3 sticky-top">
         <h4>REPORT</h4>
     </header>
+    
     <br>
     <div class="px-5">
-        <button class="btn btn-dark px-4" onclick="goBack()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z" />
-            </svg>
-            Back</button>
+        <a href="admin.page.php?electionYear=<?php echo $selectedYear ?>">
+        <button class="btn btn-dark px-4" >
+            <i class="fa fa-arrow-left"></i>
+            Back</button></a>
 
         <a href="report.php"><button class="btn btn-dark px-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
-                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
-                </svg>
+        <i class="fa fa-refresh"></i>
                 Reset</button>
         </a>
     </div>
@@ -140,7 +120,7 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
                 } ?>
 
             </select>
-        </label><br>
+        </label>
         <button class="btn btn-success submit">Generate</button>
         </div>
         <br>
@@ -254,9 +234,6 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
         }
     });
 
-    function goBack() {
-        window.history.back();
-    }
 </script>
 
 </html>

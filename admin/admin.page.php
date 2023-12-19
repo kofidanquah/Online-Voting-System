@@ -8,8 +8,7 @@ if (isset($_SESSION["username"])) {
     header("Location:admin.login.php");
     die();
 }
-
-//selecting an active year
+//dispalying an active year
 $query2 = "SELECT * FROM activeyear ORDER BY YEAR ASC";
 $stmt2 = $conn->prepare($query2);
 $stmt2->execute();
@@ -19,6 +18,7 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 //creating or inserting a new year
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $newYear = $_POST['newYear'];
+
 
     //check if Year already exists,
     $sql = "SELECT * FROM activeyear WHERE YEAR = '$newYear'";
@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die();
     } else {
 
-        //if not insert new year
+        //if not insert new year    
         try {
             $sql = "INSERT INTO activeyear (YEAR) VALUES (:newYear)";
             $stmt1 = $conn->prepare($sql);
@@ -44,9 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bindParam(':newYear', $newYear);
             $stmt->execute();
 
-
-            $_SESSION["successMessage"] = 'New Year added Successfully.';
-            header("Location:admin.page.php");
+            header("Location:admin.page.php?electionYear=" . $electionYear);
         } catch (PDOException $e) {
             echo "Database error: " . $e->getMessage();
         }
@@ -65,8 +63,10 @@ if (isset($_GET["electionYear"])) {
     $stmt->bindParam(":electionYear", $electionYear);
     $stmt->execute();
 
-    $_SESSION["electionYear"] = $electionYear;
     $activeelectionYear = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($activeelectionYear) {
+        $_SESSION["electionYear"] = $electionYear;
+    }
 }
 
 // total number of voters
@@ -86,13 +86,11 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
-
 // total number of candidates
 try {
     $sql = "SELECT COUNT(CAND_CODE) AS total_candidates FROM candidates WHERE ELECTION_YEAR = '$electionYear'";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($result) {
@@ -104,11 +102,6 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
-//display success messages stored in session
-if (isset($_SESSION["successMessage"])) {
-    echo "<script>alert('" . $_SESSION["successMessage"] . "')</script>";
-    unset($_SESSION["successMessage"]);
-}
 
 $query = "SELECT * FROM electiontrigger WHERE ELECTION_YEAR = '$electionYear'";
 $stmt1 = $conn->prepare($query);
@@ -116,12 +109,20 @@ $stmt1->execute();
 $data = $stmt1->fetch(PDO::FETCH_ASSOC);
 $status = $data['STATUS'];
 
+
 $resultSql = "SELECT CAND_CODE, COUNT(ID) AS TOTAL_VOTES FROM election GROUP BY CAND_CODE";
 $resultStmt = $conn->prepare($resultSql);
 $resultStmt->execute();
 $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// var_dump($status);die;
+// display results
+// $sqlR = "SELECT CAND_CODE, COUNT(ID) AS TOTAL_VOTES FROM election WHERE ELECTION_YEAR= $electionYear GROUP BY CAND_CODE";
+// $stmtR = $conn->prepare($sqlR);
+// // $stmtR->bindParam(":electionYear", $electionYear);
+// $stmtR->execute();
+// $electionResult = $stmtR->fetchAll(PDO::FETCH_ASSOC);
+// var_dump($name);die;
+
 ?>
 
 
@@ -136,7 +137,9 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://fontawesome.com/v4/icon/user">
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js">
+        </script> -->
 
     <style>
         body {
@@ -229,12 +232,13 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
+    <header class="header">
+        <?php include("../include/header.php"); ?>
+    </header>
+
     <div class="row container-fluid">
         <div class=" col-lg-3 container my-5">
-            YEAR: <?php echo $electionYear ?> <br>
-            <a href="../index.php"><button class="btn btn-dark text-light ">
-                    <i class="fa fa-home" aria-hidden="true"></i>
-                    Home</button></a>
+            <h4>YEAR: <?php echo $electionYear ?></h4> <br>
 
         </div>
 
@@ -257,8 +261,6 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
                             <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <?php
-
-
                         ?>
 
                         <!-- modal body -->
@@ -273,14 +275,13 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
                                         } ?>
                                     </select>
                                 </label><br>
-                                <button class="btn btn-success">Next</button>
+                                <button class="btn btn-success">Done</button>
                             </form>
                         </div>
 
                     </div>
                 </div>
             </div>
-
 
             <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addYear">+ Add Year</button>
             <!-- add year modal -->
@@ -296,9 +297,10 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
                         <!-- modal body -->
                         <div class="modal-body">
                             <form method="post" action="<?php echo $_SERVER["PHP_SELF"] ?>">
-                                <input type="text" name="newYear" autocomplete=off>
+                                <input type="number" name="newYear" min="2023" autocomplete=off value="2023" required>
                                 <button class="btn btn-success">Save</button>
                             </form>
+                            <!-- <button class="btn btn-success" onclick="confirmLogout()">sweet alert</button> -->
                         </div>
 
                     </div>
@@ -313,166 +315,120 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php
                 echo $totalcandidates;
                 ?>
-            </button><br>
-            <br>
+            </button><br><br>
+
 
             <?php
-            if (!empty($electionYear)) { ?>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#startModal" id="startElection">Start Election</button>
-                <!-- start election modal -->
-                <div class="modal fade" id="startModal">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <!-- modal header -->
-                            <div class="modal-header">
-                                <h4 class="modal-title">Start Election</h4>
-                                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-
-                            <!-- modal body -->
-                            <div class="modal-body">
-                                <form method="post" action="startelection.php">
-                                    <input type="hidden" name="electionYear" value="<?php echo $electionYear ?>" autocomplete="off" required><br>
-                                    <a><button class="btn btn-success" id="start">Start</button></a>
-                                </form>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#endModal">End Election</button>
-                <!-- end election modal -->
-                <tr>
-                    <td>
-                        <div class="modal fade" id="endModal">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <!-- modal header -->
-                                    <div class="modal-header">
-                                        <h4 class="modal-title">End Election</h4>
-                                        <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-
-                                    <!-- modal body -->
-                                    <div class="modal-body">
-                                        <form method="post" action="endelection.php">
-                                            <input type="hidden" name="electionYear" value="<?php echo $electionYear ?>" autocomplete="off" required><br>
-                                            <button type="submit" class="btn btn-danger">End</button>
-                                        </form>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-
-                    </td>
-
-                </tr>
-            <?php } else { ?>
+            if (!empty($electionYear) && ($status == '0' || $status == '2')) { ?>
+                <button class="btn btn-primary" onclick="startElection()" id="startElection">Start Election</button>
+            <?php } elseif (!empty($electionYear) && ($status == '1')) { ?>
+                <button class="btn btn-info"><i class="fa fa-spinner"></i> Election In Progress</button>
+                <button class="btn btn-danger" onclick="endElection()" id="endElection">End Election</button>
+            <?php
+            } else { ?>
                 <button class="btn btn-primary" disabled>Start Election</button>
                 <button class="btn btn-danger" disabled>End Election</button>
             <?php } ?>
 
         </div>
         <div class="col-lg-3">
-
-            <a><button class="btn btn-dark text-light logout" onclick="confirmLogout()">
-                    <i class="fa fa-sign-out" aria-hidden="true"></i>
-
-                    logout</button></a>
+            <button class="btn btn-dark text-light logout" onclick="confirmLogout()">
+                <i class="fa fa-sign-out"></i>
+                logout</button>
         </div>
 
     </div>
     <hr>
 
+
     <div class="row container-fluid">
-        <div class="col-md-3 px-5">
-            <!-- admin -->
-            <h4><b>Administrator</b></h4>
-            <hr>
-
-            <img src="../images/person.webp" alt="admin image"><br>
-            <b>
-                Name: <?php echo $name; ?>
-            </b>
-            <br><br>
-            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#notificationModal">
-                <i class="fa fa-bell" aria-hidden="true"></i>
-                Notification</button>
-
-            <!-- notification modal -->
-            <div class="modal fade" id="notificationModal">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <!-- modal header -->
-                        <div class="modal-header">
-                            <h4 class="modal-title">Notification</h4>
-                            <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-
-                        <!-- modal body -->
-                        <div class="modal-body">
-                            <?php
-
-                            ?>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="col-md-9">
+        <div class="col-lg-12 col-md-9 container-fluid">
             <?php
-            if (!empty($electionYear)) { ?>
+            if (!empty($electionYear) && ($status == '1')) {
+                $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR= $electionYear";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+                $candidates = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                <a href="../candidate/addcandidate.view.php"><button type="submit" class="btn btn-success">
-                        <i class="fa fa-user"></i>+ Add Candidate</button></a>
-                <a href="../voter/addvoter.view.php"><button type="submit" class="btn btn-success">
-                        <i class="fa fa-user" ></i>
-                        + Add Voter</button></a>
-                <a href="voters.list.php"><button type="submit" class="btn btn-success">
-                <i class="fa fa-list" ></i>
-                    List of Voters</button></a>
-                <a href="results.php"><button type="submit" class="btn btn-success">Results</button></a>
-            <?php } else {
-            } ?>
-            <br><br>
+                $chartData = [];
+                foreach ($candidates as $row) {
+                    $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
+                    $image = $row['CAND_IMAGE'];
+                    $candCode = $row['CAND_CODE'];
+                    $position = $row['POSITION'];
+                    $votes = 0;
+                    foreach ($electionResult as $k => $v) {
+                        if ($v['CAND_CODE'] == $candCode) {
+                            $votes = $v['TOTAL_VOTES'];
+                            break;
+                        }
+                    }
 
-            <table class="table table-hover container-fluid">
+                    // Store data for JavaScript
+                    $chartData[] = [
+                        'fullName' => $fullName,
+                        'votes' => $votes,
+                    ];
+                }
+                $chartDataJSON = json_encode($chartData);
+            ?>
+                <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+            <?php
+            } else {
+            ?>
 
                 <?php
-                ?>
-                <h5>Candidates</h5>
-                <thead>
-                    <tr>
-                        <th>IMAGE</th>
-                        <th>NAME</th>
-                        <th>POSITION</th>
-                        <th>CANDIDATE CODE</th>
-                        <th>ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody>
+                if (!empty($electionYear)) { ?>
+
+                    <a href="../candidate/addcandidate.view.php"><button type="submit" class="btn btn-success">
+                            +<i class="fa fa-user"></i> Add Candidate</button></a>
+                    <a href="../voter/addvoter.view.php"><button type="submit" class="btn btn-success">
+                            +<i class="fa fa-user"></i>
+                            Add Voter</button></a>
+                    <a href="voters.list.php"><button type="submit" class="btn btn-success">
+                            <i class="fa fa-list"></i>
+                            List of Voters</button></a>
+                    <a href="results.php"><button type="submit" class="btn btn-success">Results</button></a>
+                <?php } else {
+                } ?>
+                <br><br>
+                <table class="table table-hover container-fluid">
+
                     <?php
-                    $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR = $electionYear ORDER BY POSITION ASC";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->execute();
 
-                    if (!empty($electionYear)) {
-                        try {
-                            if ($stmt->rowCount() > 0) {
+                    ?>
+                    <h5>Candidates</h5>
+                    <thead>
+                        <tr>
+                            <th>IMAGE</th>
+                            <th>NAME</th>
+                            <th>POSITION</th>
+                            <th>CANDIDATE CODE</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR = $electionYear ORDER BY POSITION ASC";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->execute();
+                        $candidates = $stmt->fetchAll();
 
-                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        if (!empty($electionYear)) {
+                            try {
+                                // if ($stmt->rowCount() > 0) {
+
+                                // while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                foreach ($candidates as $row) {
                                     $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
                                     $position = $row['POSITION'];
                                     $image = $row['CAND_IMAGE'];
                                     $candCode = $row['CAND_CODE'];
                                     $electionYear = $row['ELECTION_YEAR'];
-                    ?>
+                        ?>
+
                                     <tr>
+
                                         <td> <img src="../uploads/<?php echo $image ?>"></td>
                                         <td><?php echo $fullName; ?></td>
                                         <td><?php echo $position; ?></td>
@@ -481,7 +437,7 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
                                         <?php
                                         ?>
                                         <td>
-                                            <button type=button class="btn btn-danger remove" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $candCode ?>">
+                                            <button type=button class="btn btn-danger remove" onclick="confirmDelete('<?php echo $candCode ?>','<?php echo $electionYear ?>')">
                                                 <i class="fa fa-trash" aria-hidden="true"></i> Delete</button>
                                             <input type="hidden" name="candCode">
                                             <a href="../candidate/update.candidate.view.php?id=<?php echo $candCode ?>"><button type=submit class="btn btn-primary update" value="<?php echo $candCode; ?>">
@@ -489,34 +445,14 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
                                                     Edit</button></a>
                                         </td>
                                     </tr>
-                                    <!-- confirm delete modal -->
-                                    <div class="modal fade" id="deleteModal<?php echo $candCode ?>">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <!-- modal header -->
-                                                <div class="modal-header">
-                                                    <h4 class="modal-title">Confirm Delete</h4>
-                                                    <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
+                    <?php
 
-                                                <!-- modal body -->
-                                                <div class="modal-body">
-                                                    <a href="../candidate/delete.candidate.php?deleteid=<?php echo $candCode; ?>&electionYear=<?php echo $electionYear ?>">
-                                                        <button class="btn btn-danger">Delete</button></a>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                    <?php }
-                            } else {
-                                echo "<h3>No records Available</h3>";
+                                }
+                            } catch (PDOException $e) {
+                                echo "Connection failed: " . $e->getMessage();
                             }
-                        } catch (PDOException $e) {
-                            echo "Connection failed: " . $e->getMessage();
                         }
                     }
-
                     ?>
         </div>
         </tbody>
@@ -527,18 +463,102 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
 
 </body>
 <script>
-    function confirmLogout() {
+    function confirmDelete(candCode, electionYear) {
         Swal.fire({
-            position: "top-end",
-            title: "Are you sure you want to logout?",
-            icon: "warning",
+            title: "Do you want to Delete this Candidate?",
+            html: "Note: This action can not be reversed" +
+                "<form id='confirmDelete' action='../candidate/delete.candidate.php' method='GET'>" +
+                "<input type='hidden' name='electionYear' value='" + electionYear + "'>" +
+                "<input type='hidden' name='deleteid' value='" + candCode + "'>" +
+                "</form>",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "<a href='admin.logout.php'>Logout</a>"
+            confirmButtonText: "Delete",
+            preConfirm: function() {
+                document.getElementById('confirmDelete').submit();
+            }
+        });
+    }
+
+    function confirmLogout() {
+        Swal.fire({
+            title: "Are you sure you want to logout?",
+            icon: "warning",
+            html: "<form id='adminlogout' action='admin.logout.php' method='POST'>" +
+                "</form>",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Logout",
+            preConfirm: function() {
+                document.getElementById('adminlogout').submit();
+            }
+
         })
     }
 
+    function startElection() {
+        Swal.fire({
+            title: "Do you want to Start the Election?",
+            html: "<form id='startElectionForm' action='startelection.php' method='POST'>" +
+                "<input type='hidden' name='electionYear' value='<?php echo $electionYear ?>'>" +
+                "</form>",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Start",
+            preConfirm: function() {
+                document.getElementById('startElectionForm').submit();
+            }
+        });
+    }
+
+    function endElection() {
+        Swal.fire({
+            title: "Do you want to End the Election?",
+            html: "<form id='endElectionForm' action='endelection.php' method='POST'>" +
+                "<input type='hidden' name='electionYear' value='<?php echo $electionYear ?>'>" +
+                "</form>",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "End",
+            preConfirm: function() {
+                document.getElementById('endElectionForm').submit();
+            }
+        });
+    }
+</script>
+<script>
+    const chartData = <?php echo $chartDataJSON; ?>;
+    const xValues = chartData.map(data => data.fullName);
+    const yValues = chartData.map(data => data.votes);
+    const barColors = ["green", "blue", "orange", "brown", "yellow", "red", "violet", "black", "gray"];
+
+    new Chart("myChart", {
+        type: "bar",
+        data: {
+            labels: xValues,
+            datasets: [{
+                backgroundColor: barColors,
+                data: yValues
+            }]
+        },
+        options: {
+            legend: {
+                display: false
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        min: 0,
+                        max: 10
+                    }
+                }],
+            }
+        }
+    });
 </script>
 
 </html>

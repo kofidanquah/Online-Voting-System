@@ -136,16 +136,6 @@ function test_input($data)
         <input type="submit" value="Log in" id="submit"><br>
 
 
-        <?php
-        if (isset($_SESSION['status']) && isset($_SESSION['message']) ) {
-            if ($_SESSION['status']) { ?>
-                <p class="error"><?php echo $_SESSION['message'] ?></p>
-                <?php } else { ?>
-                    <p class="success"><?php echo $_SESSION['message'] ?></p>
-            <?php }
-            unset($_SESSION['status'], $_SESSION['message']);
-        }
-            ?>
 
     </form>
 

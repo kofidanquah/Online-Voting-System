@@ -6,20 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $electionYear = $_POST["electionYear"];
 
     $date = date("Y-m-d H:i:s");
-
-    //check if election has already been started
-    $query = "SELECT * FROM electiontrigger WHERE ELECTION_YEAR = '$electionYear'";
-    $stmt1 = $conn->prepare($query);
-    $stmt1->execute();
-    $data = $stmt1->fetch(PDO::FETCH_ASSOC);
-
-    if ($data['STATUS'] == '1') {
-        $_SESSION['successMessage'] = "Election has already Started!";
-        header("Location:../admin/admin.page.php?electionYear=" . $electionYear);
-    }elseif($data['STATUS'] == '2') {
-        $_SESSION['successMessage'] = "Election Ended Already!";
-        header("Location:../admin/admin.page.php?electionYear=" . $electionYear);
-    }else{
+// var_dump($electionYear);die
     try {
         $sql = "UPDATE electiontrigger SET STATUS = '1', START_DATE = :date WHERE ELECTION_YEAR = :electionYear";
         $stmt = $conn->prepare($sql);
@@ -38,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } catch (PDOException $e) {
         echo "Database error: " . $e->getMessage();
     }
-    }
+    
 } else {
     echo "Set Election First";
     header("Location: admin.page.php?electionYear=" . $electionYear);

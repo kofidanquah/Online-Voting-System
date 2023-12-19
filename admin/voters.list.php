@@ -1,11 +1,16 @@
 <?php
 include "../config.php";
+if (isset($_SESSION["username"])) {
+    $name = $_SESSION["username"];
+} else {
+    header("Location:admin.login.php");
+    die();
+}
+
+
 if (isset($_SESSION["electionYear"]));
 $electionYear = $_SESSION["electionYear"];
 $search = $_GET["search"];
-
-// var_dump($gender);die;
-
 
 //count total number of voters
 try {
@@ -45,11 +50,6 @@ try {
 }
 
 
-if (isset($_SESSION["successMessage"])) {
-    echo "<script>alert('" . $_SESSION["successMessage"] . "')</script>";
-    unset($_SESSION["successMessage"]);
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -58,6 +58,7 @@ if (isset($_SESSION["successMessage"])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -147,14 +148,15 @@ if (isset($_SESSION["successMessage"])) {
 <body>
     <div class="row container-fluid">
         <div class="container-fluid col-md-4 my-5">
-            <button class="btn btn-dark text-light px-3" onclick="goBack()">
-                <i class="fa fa-arrow-left"></i> Back</button>
+            <a href="admin.page.php?electionYear=<?php echo $electionYear ?>">
+            <button class="btn btn-dark text-light px-3">
+                <i class="fa fa-arrow-left"></i> Back</button></a>
 
             <a href="voters.list.php"><button class="btn btn-dark px-4">
                     <i class="fa fa-refresh"></i> Reset</button></a>
         </div>
         <div class="col-md-4 container-fluid ">
-            <button class="btn btn-info total">Total number of Registered Voters:<br>
+            <button class="btn btn-info total">Registered Voters:<br>
                 <?php echo $totalvoters ?>
             </button>
         </div>
@@ -169,7 +171,7 @@ if (isset($_SESSION["successMessage"])) {
 
     <div class="container-fluid search">
         <form method="get" action="<?php echo $_SERVER["PHP_SELF"] ?>">
-            <input type="search" name="search" placeholder="Search" autocomplete="off" required>
+            <input type="search" name="search" placeholder="Search Name, Voter's ID, or Gender" autocomplete="off" required>
             <button type="submit" class="btn btn-success">Search</button>
         </form>
     </div>
@@ -183,7 +185,6 @@ if (isset($_SESSION["successMessage"])) {
         <div class="container-fluid">
 
             <table class="table table-hover container-fluid">
-                <h3>Voters Register</h3>
                 <thead>
                     <tr>
                         <th>IMAGE</th>
@@ -288,39 +289,13 @@ if (isset($_SESSION["successMessage"])) {
                                                     break;
                                             } ?></td>
                                         <td>
-                                            <button type=button class="btn btn-danger remove" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $voterId ?>">
+                                            <button type=button class="btn btn-danger remove" onclick="confirmDelete('<?php echo $voterId ?>','<?php echo $electionYear ?>')">
                                                 <i class="fa fa-trash"></i> Delete</button>
                                             <input type="hidden" name="voterId">
                                             <a href="../voter/updatevoter.view.php?id=<?php echo $voterId ?>"><button type=submit class="btn btn-primary update" value="<?php echo $voterId; ?>">
                                                     <i class="fa fa-pencil-square-o"></i> Edit</button></a>
                                         </td>
                                     </tr>
-                                    <!-- confirm delete modal -->
-                                    <tr>
-                                        <td>
-                                            <div class="modal" id="deleteModal<?php echo $voterId ?>">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <!-- modal header -->
-                                                        <div class="modal-header">
-                                                            <h4 class="modal-title">Confirm Delete</h4>
-                                                            <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
-
-                                                        </div>
-
-                                                        <!-- modal body -->
-                                                        <div class="modal-body">
-                                                            <a href="../voter/delete.voter.php?deleteid=<?php echo $voterId ?>"><button class="btn btn-danger">Delete</button></a>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </td>
-
-                                    </tr>
-
 
                     <?php
                                 }
@@ -340,11 +315,25 @@ if (isset($_SESSION["successMessage"])) {
 
     </div>
 
-    <script>
-        function goBack() {
-            window.history.back();
-        }
-    </script>
 </body>
+<script>
+        function confirmDelete(voterId, electionYear) {
+            Swal.fire({
+            title: "Do you want to Delete this Candidate?",
+            html: "Note: This action can not be reversed" +
+                "<form id='confirmDelete' action='../voter/delete.voter.php' method='GET'>" +
+                "<input type='hidden' name='electionYear' value='" + electionYear + "'>" +
+                "<input type='hidden' name='deleteid' value='" + voterId + "'>" +
+                "</form>",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Delete",
+            preConfirm: function() {
+                document.getElementById('confirmDelete').submit();
+            }
+        });
+    }
 
+</script>
 </html>

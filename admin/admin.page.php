@@ -418,9 +418,6 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
 
                         if (!empty($electionYear)) {
                             try {
-                                // if ($stmt->rowCount() > 0) {
-
-                                // while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                 foreach ($candidates as $row) {
                                     $fullName = $row['FIRST_NAME'] . ' ' . $row['LAST_NAME'];
                                     $position = $row['POSITION'];

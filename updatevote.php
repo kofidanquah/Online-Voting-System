@@ -48,7 +48,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmtv->execute();
 
         if ($stmt1) {
-            // Store the success message in a session
             $_SESSION["Message"] = 'Voting Successful';
 
             // Redirect to the admin page

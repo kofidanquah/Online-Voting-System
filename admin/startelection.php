@@ -6,7 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $electionYear = $_POST["electionYear"];
 
     $date = date("Y-m-d H:i:s");
-// var_dump($electionYear);die
+    
     try {
         $sql = "UPDATE electiontrigger SET STATUS = '1', START_DATE = :date WHERE ELECTION_YEAR = :electionYear";
         $stmt = $conn->prepare($sql);

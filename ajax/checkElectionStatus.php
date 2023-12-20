@@ -9,7 +9,7 @@ try {
     $stmt->bindParam(":voterId", $voterId);
     $status = $stmt->execute();
     $status = $stmt->fetch(PDO::FETCH_ASSOC);
-    // var_dump($status);die;
+
 
     $query = "SELECT * FROM electiontrigger WHERE ELECTION_YEAR = :electionYear LIMIT 1";
     $stmt = $conn->prepare($query);

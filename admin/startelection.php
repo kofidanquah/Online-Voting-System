@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt) {
             // Output the success message
             $_SESSION['successMessage'] = "Election Started successfully";
-
+            $_SESSION['electionYear'] = $electionYear;
             // Redirect to the admin page with the electionYear
             header("Location: admin.page.php?electionYear=" . $electionYear);
             die();

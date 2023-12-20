@@ -344,6 +344,7 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="row container-fluid">
         <div class="col-lg-12 col-md-9 container-fluid">
             <?php
+            //display election results in bar chart when election is ongoing
             if (!empty($electionYear) && ($status == '1')) {
                 $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR= $electionYear";
                 $stmt = $conn->prepare($sql);
@@ -378,6 +379,7 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
             ?>
 
                 <?php
+                            //display candidates in table form when election has ended or not started
                 if (!empty($electionYear)) { ?>
 
                     <a href="../candidate/addcandidate.view.php"><button type="submit" class="btn btn-success">
@@ -463,7 +465,7 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
 
 </body>
 <script>
-    function confirmDelete(candCode, electionYear) {
+        function confirmDelete(candCode, electionYear) {
         Swal.fire({
             title: "Do you want to Delete this Candidate?",
             html: "Note: This action can not be reversed" +
@@ -530,6 +532,7 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
         });
     }
 </script>
+
 <script>
     const chartData = <?php echo $chartDataJSON; ?>;
     const xValues = chartData.map(data => data.fullName);
@@ -553,7 +556,7 @@ $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
                 yAxes: [{
                     ticks: {
                         min: 0,
-                        max: 10
+                        max: 10,
                     }
                 }],
             }

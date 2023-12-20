@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Store the success message in a session
             $_SESSION["Message"] = 'Voting Successful';
 
-            // Redirect to the admin page 
+            // Redirect to the admin page
             header("Location: voter/dashboard.php");
             die();
         }

@@ -25,8 +25,8 @@ $status = $stmt->execute();
 $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
 
-    $url1=$_SERVER['REQUEST_URI'];
-    header("Refresh: 5; URL=$url1");
+// $url1=$_SERVER['REQUEST_URI'];
+// header("Refresh: 5; URL=$url1");
 ?>
 
 
@@ -48,7 +48,7 @@ $data = $stmt->fetch(PDO::FETCH_ASSOC);
             background-repeat: no-repeat;
             background-size: cover;
             width: auto;
-            height:120vh;
+            height: 120vh;
         }
 
         h5 {
@@ -117,14 +117,15 @@ $data = $stmt->fetch(PDO::FETCH_ASSOC);
             border-radius: 4px;
             box-sizing: border-box;
         }
-        a{
+
+        a {
             text-decoration: none;
             color: white;
         }
 
-.logout{
-margin-left:150px;
-}
+        .logout {
+            margin-left: 150px;
+        }
     </style>
 
     <title>dashboard</title>
@@ -140,16 +141,16 @@ margin-left:150px;
     </h3>
 
     <div class="row container-fluid">
-        <div class="col-md-3 container my-5">            
+        <div class="col-md-3 container my-5">
             <a href="../index.php"><button class="btn btn-dark text-light px-3">
-                <i class="fa fa-home"></i>
+                    <i class="fa fa-home"></i>
                     Home
                 </button></a>
         </div>
 
         <div class="col-md-3">
         </div>
-        
+
         <div class="col-md-3 my-5" id="voteDiv">
             <?php
             if ($trigger['STATUS'] == 0) {
@@ -166,13 +167,13 @@ margin-left:150px;
                     echo "<h4>You have voted</h4>";
                 }
             }
-            
+
             ?>
         </div>
         <div class="col-md-3">
             <button class="btn btn-dark text-light px-3 my-5 logout" onclick="confirmLogout()">
-            <i class="fa fa-sign-out"></i>
-                    Log out</button>
+                <i class="fa fa-sign-out"></i>
+                Log out</button>
 
         </div>
     </div>
@@ -214,22 +215,57 @@ margin-left:150px;
 </body>
 
 <script>
-    function confirmLogout() {
-    Swal.fire({
-        title: "Are you sure you want to logout?",
-        icon: "warning",
-        html: "<form id='logout' action='logout.php' method='POST'>" +
-            "</form>",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Logout",
-        preConfirm: function() {
-            document.getElementById('logout').submit();
-        }
+    $(document).ready(function() {
+        setInterval(function() {
+            $.ajax({
+                type: 'GET',
+                url: '../ajax/checkElectionStatus.php',
+                data: {},
+                dataType: "json",
+                success: function(response) {
+                    switch (response.status) {
+                        case "0":
+                            $("#voteDiv").html(`"<h4>Election not Started</h4>"`);
+                            break;
 
-    })
-}
+                        case "1":
+                            if((response.votecount) < 3){
+                                $("#voteDiv").html(`<a href="votingpage.php"><button class="btn btn-success text-light px-3"> Vote now</button></a>`);
+                            }else{
+                                $("#voteDiv").html(`<h4>You have voted</h4>`);
+                            }
+                            break;
+
+                        case "2":
+                            $("#voteDiv").html(`<h4>Election Ended</h4><a href="../admin/results.php"><button class="btn btn-success text-light px-3">Results</button></a>`);
+                            break;
+
+                            default:
+                                break;
+                    }
+
+                },
+            });
+            // $('#voteDiv').contentWindow.location.reload(true);   
+        }, 1000);
+    });
+
+    function confirmLogout() {
+        Swal.fire({
+            title: "Are you sure you want to logout?",
+            icon: "warning",
+            html: "<form id='logout' action='logout.php' method='POST'>" +
+                "</form>",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Logout",
+            preConfirm: function() {
+                document.getElementById('logout').submit();
+            }
+
+        })
+    }
 
 
     const time = new Date().getHours();
@@ -242,20 +278,6 @@ margin-left:150px;
         greeting = "Good evening";
     }
     document.getElementById("demo").innerHTML = greeting;
-
-
-    // $(document).ready(function() {
-    //     setInterval(function() {
-    //         $.ajax({
-    //             type: 'POST',
-    //             url: '../admin/startelection.php',
-    //             data: {},
-    //             success: function(e) {
-    //             },
-    //         });
-    //         $('#voteDiv').contentWindow.location.reload(true);   
-    //     }, 1000);
-    // });
 </script>
 
 </html>

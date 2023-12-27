@@ -8,7 +8,7 @@ if (isset($_SESSION["username"])) {
     header("Location:admin.login.php");
     die();
 }
-//dispalying an active year
+//dispalying all active year
 $query2 = "SELECT * FROM activeyear ORDER BY YEAR ASC";
 $stmt2 = $conn->prepare($query2);
 $stmt2->execute();
@@ -64,9 +64,6 @@ if (isset($_GET["electionYear"])) {
     $stmt->execute();
 
     $activeelectionYear = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    if ($activeelectionYear) {
-        $_SESSION["electionYear"] = $electionYear;
-    }
 }
 
 // total number of voters
@@ -115,13 +112,7 @@ $resultStmt = $conn->prepare($resultSql);
 $resultStmt->execute();
 $electionResult = $resultStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// display results
-// $sqlR = "SELECT CAND_CODE, COUNT(ID) AS TOTAL_VOTES FROM election WHERE ELECTION_YEAR= $electionYear GROUP BY CAND_CODE";
-// $stmtR = $conn->prepare($sqlR);
-// // $stmtR->bindParam(":electionYear", $electionYear);
-// $stmtR->execute();
-// $electionResult = $stmtR->fetchAll(PDO::FETCH_ASSOC);
-// var_dump($name);die;
+$_SESSION["electionYear"] = $electionYear;
 
 ?>
 

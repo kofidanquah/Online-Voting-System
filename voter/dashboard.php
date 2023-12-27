@@ -224,7 +224,7 @@ $data = $stmt->fetch(PDO::FETCH_ASSOC);
                 success: function(response) {
                     switch (response.status) {
                         case "0":
-                            $("#voteDiv").html(`"<h4>Election not Started</h4>"`);
+                            $("#voteDiv").html(`<h4>Election not Started</h4>`);
                             break;
 
                         case "1":

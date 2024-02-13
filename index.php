@@ -250,7 +250,8 @@ require "config.php";
                 <li><a href="#">News</a></li>
                 <li><a href="#">Contact us</a></li>
                 <?php
-                if (isset($_SESSION["voterId"])) { ?>
+                if (isset($_SESSION["voterId"])) {
+                    ?>
                     <li><a href="voter/dashboard.php"><i class="fa fa-user-circle-o fa-2x"></i></a></li>
                 <?php
                 } else { ?>

@@ -17,22 +17,16 @@ require "../config.php";
     <style>
         body {
             background-image: url("../images/background\ image.jfif");
-            background-repeat: no-repeat;
             background-size: cover;
             align-items: center;
             justify-content: center;
-            /* height: 90vh; */
         }
 
         form {
-            /* margin-left: 300px; */
-
-            /* padding: 20px;
-            margin: auto; */
             border-radius: 20px;
-            height: 60vh; 
-            /* box-shadow: 10px 10px 10px; */
-
+            padding: 12px 20px;
+            margin: 8px 0;
+            margin: auto;
         }
 
         h2 {
@@ -43,7 +37,8 @@ require "../config.php";
         }
 
         input {
-            width: 50%;
+            width: 100%;
+            max-width: 350px;
             padding: 12px 20px;
             margin: 8px 0;
             display: inline-block;
@@ -51,9 +46,7 @@ require "../config.php";
             border-radius: 4px;
             text-align: center;
             justify-content: center;
-            /* box-sizing: border-box; */
         }
-
 
     </style>
     <title>Log in</title>
@@ -81,7 +74,6 @@ require "../config.php";
                 <input type="hidden" name="firstName" value="<?php echo $votingStatus; ?>">
                 <input class="btn btn-success" type="submit" value="Log in" id="submit"></input>
                     <br>
-                <!-- <a>Forgotten password?</a> -->
             </form>
         </div>
     </div>

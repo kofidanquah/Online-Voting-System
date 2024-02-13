@@ -3,7 +3,7 @@ require "../config.php";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $electionYear = $_POST["electionYear"];
-// var_dump($electionYear);die;
+    
     $date = date("Y-m-d H:i:s");
     try {
         $sql = "UPDATE electiontrigger SET STATUS = '2', END_DATE = :date WHERE ELECTION_YEAR = :electionYear";
@@ -13,8 +13,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->execute();
 
         if ($stmt) {
-            //Store the success message in a session
-            $_SESSION['successMessage'] = "Election Ended";
             header("Location: admin.page.php?electionYear=" . $electionYear);
             die();
         }

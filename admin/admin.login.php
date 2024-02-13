@@ -1,6 +1,5 @@
 <?php
 require "../config.php";
-
 $username = $password = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -20,12 +19,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->bindParam(":password", $password);
 
         $status = $stmt->execute();
-        
-        if ($status) { 
+
+        if ($status) {
             if ($stmt->rowCount() > 0) {
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
                 // var_dump($data); exit;
-                $_SESSION["username"] =$username;
+                $_SESSION["username"] = $username;
                 $_SESSION["status"] = false;
                 $_SESSION["message"] = "Login sucessful";
                 header("location:admin.page.php");
@@ -57,90 +56,79 @@ function test_input($data)
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
         body {
-        background-repeat: no-repeat;
-        background-size: cover;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 90vh;
-    }
-    
-    form {
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-color: rgba(255, 255, 255, 0.5);
-        width: 240px;
-        padding: 20px;
-        margin: auto;
-        border-radius: 20px;
-        height: 50vh;
-        border:2px solid black;
-        box-shadow: 10px 10px 10px;
-    }
-    
-    h2 {
-        text-align: center;
-        font-size: 30px;
-        margin-bottom: 20px;
-        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-    }
-    
-    input {
-        width: 100%;
-        padding: 12px 20px;
-        margin: 8px 0;
-        display: inline-block;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-    
-    input[type=submit] {
-        width: 100%;
-        background-color: #4CAF50;
-        color: white;
-        padding: 14px 20px;
-        margin: 8px 0;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+            background-image: url("../images/plain\ wallpaper.jpg");
+            background-size: cover;
+            align-items: center;
+            justify-content: center;
+        }
 
-    #submit:hover{
-        background-color: #4CAF50;
-        cursor: pointer;
-    }
-    .error{
-        color: red !important;
-    }
-    .success{
-        color: green !important;
-    }
+        form {
+            border-radius: 20px;
+            padding: 12px 20px;
+            margin: 8px 0;
+            margin: auto;
+        }
 
-</style>
+        h2 {
+            font-size: 30px;
+            margin-bottom: 20px;
+            font-family: "Poppins", sans-serif;
+            margin-left: 90px;
+        }
+
+        input {
+            width: 100%;
+            max-width: 350px;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+            justify-content: center;
+        }
+
+        @media(min-width: 1024px) {
+            form{
+                margin-left: 500px;
+
+            }
+        }
+    </style>
     <title>Admin Log in</title>
 </head>
+
 <body>
-<p class="error">
-
-    <form method="post" action="<?php echo $_SERVER["PHP_SELF"];?>">
-        <h2>Admin Log in</h2>
-        username<br><input type="text" name="username" autocomplete="off" autofocus required><br>
-        password<br><input type="password" name="password" autocomplete="off" required><br><br>
-        <input type="submit" value="Log in" id="submit"><br>
 
 
 
-    </form>
 
+    <div class="container-fluid">
+
+        <div class="">
+            <form method="post" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+                <h2>Admin Login</h2>
+                Username<br>
+                <input type="text" name="username" autocomplete="off" required><br>
+                Password<br>
+                <input type="password" name="password" autocomplete="off" required><br><br>
+                <input class="btn btn-success" type="submit" value="Log in" id="submit"></input>
+                <br>
+            </form>
+        </div>
+    </div>
 
 
 </body>
-</html>
 
+</html>

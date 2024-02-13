@@ -1,8 +1,19 @@
 <?php
 require "../config.php";
+if (isset($_SESSION["username"])) {
+    $name = $_SESSION["username"];
+} else {
+    header("Location:../admin/admin.login.php");
+    die();
+}
+
 if (isset($_SESSION["electionYear"]));
 $electionYear = $_SESSION["electionYear"];
 
+if (isset($_SESSION["successMessage"])) {
+    echo "<script>alert('". $_SESSION["successMessage"] ."')</script>";
+    unset($_SESSION["successMessage"]);
+}
 
 ?>
 <!DOCTYPE html>
@@ -14,6 +25,7 @@ $electionYear = $_SESSION["electionYear"];
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
 
     <style>
         body {
@@ -109,6 +121,19 @@ $electionYear = $_SESSION["electionYear"];
         function goBack() {
             window.history.back();
         }
+        
+        function existingEmail() {
+        Swal.fire({
+            title: "Are you sure you want to logout?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Logout",
+
+        })
+    }
+
     </script>
 </body>
 

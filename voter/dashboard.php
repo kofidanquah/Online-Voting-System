@@ -10,7 +10,7 @@ if (isset($_SESSION["voterId"])) {
     $image = $_SESSION["image"];
     $electionYear = $_SESSION["electionYear"];
 } else {
-    header("Location:login.view.php");
+    header("Location:../index.php");
     die();
 }
 

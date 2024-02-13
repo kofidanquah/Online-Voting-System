@@ -188,8 +188,8 @@ $_SESSION["electionYear"] = $electionYear;
             text-align: center;
             color: white;
             padding: 20px;
-            font-size: 16px;
             border-radius: 0px;
+            width: 100%;
         }
 
         .candidates {
@@ -200,12 +200,11 @@ $_SESSION["electionYear"] = $electionYear;
             text-align: center;
             color: white;
             padding: 20px;
-            font-size: 16px;
             border-radius: 0px;
             width: 100%;
         }
 
-        .col-lg-3 {
+        .col-lg-4 {
             padding: 20px;
             margin: auto;
         }
@@ -228,12 +227,12 @@ $_SESSION["electionYear"] = $electionYear;
     </header>
 
     <div class="row container-fluid">
-        <div class=" col-lg-3 container my-5">
+        <div class=" col-lg-2 container my-5">
             <h4>YEAR: <?php echo $electionYear ?></h4> <br>
 
         </div>
 
-        <div class="col-lg-3">
+        <div class="col-lg-4">
             <button class="btn btn-primary voters">Total number of Registered Voters:<br>
                 <?php
                 echo $totalvoters;
@@ -301,7 +300,7 @@ $_SESSION["electionYear"] = $electionYear;
         </div>
 
 
-        <div class="col-lg-3">
+        <div class="col-lg-4">
             <button class="btn btn-warning candidates">Total number of Candidates:<br>
                 <?php
                 echo $totalcandidates;
@@ -315,6 +314,7 @@ $_SESSION["electionYear"] = $electionYear;
             <?php } elseif (!empty($electionYear) && ($status == '1')) { ?>
                 <button class="btn btn-info"><i class="fa fa-spinner"></i> Election In Progress</button>
                 <button class="btn btn-danger" onclick="endElection()" id="endElection">End Election</button>
+                <button class="btn btn-success" onclick="resetElection()" id="resetElection">Reset</button>
             <?php
             } else { ?>
                 <button class="btn btn-primary" disabled>Start Election</button>
@@ -322,7 +322,7 @@ $_SESSION["electionYear"] = $electionYear;
             <?php } ?>
 
         </div>
-        <div class="col-lg-3">
+        <div class="col-lg-2">
             <button class="btn btn-dark text-light logout" onclick="confirmLogout()">
                 <i class="fa fa-sign-out"></i>
                 logout</button>
@@ -370,7 +370,7 @@ $_SESSION["electionYear"] = $electionYear;
             ?>
 
                 <?php
-                            //display candidates in table form when election has ended or not started
+                //display candidates in table form when election has ended or not started
                 if (!empty($electionYear)) { ?>
 
                     <a href="../candidate/addcandidate.view.php"><button type="submit" class="btn btn-success">
@@ -453,7 +453,7 @@ $_SESSION["electionYear"] = $electionYear;
 
 </body>
 <script>
-        function confirmDelete(candCode, electionYear) {
+    function confirmDelete(candCode, electionYear) {
         Swal.fire({
             title: "Do you want to Delete this Candidate?",
             html: "Note: This action can not be reversed" +
@@ -516,6 +516,22 @@ $_SESSION["electionYear"] = $electionYear;
             confirmButtonText: "End",
             preConfirm: function() {
                 document.getElementById('endElectionForm').submit();
+            }
+        });
+    }
+
+    function resetElection() {
+        Swal.fire({
+            title: "Do you want to Reset the Election?",
+            html: "<form id='resetElectionForm' action='resetElection.php' method='POST'>" +
+                "<input type='hidden' name='electionYear' value='<?php echo $electionYear ?>'>" +
+                "</form>",
+            showCancelButton: true,
+            confirmButtonColor: "green",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Reset",
+            preConfirm: function() {
+                document.getElementById('resetElectionForm').submit();
             }
         });
     }

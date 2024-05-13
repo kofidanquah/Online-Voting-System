@@ -7,12 +7,8 @@ if (isset($_SESSION["username"])) {
     die();
 }
 
-if (isset($_SESSION["electionYear"]));
-$electionYear = $_SESSION["electionYear"];
-
-if (isset($_SESSION["successMessage"])) {
-    echo "<script>alert('". $_SESSION["successMessage"] ."')</script>";
-    unset($_SESSION["successMessage"]);
+if (isset($_SESSION["electionYear"])){
+    $electionYear = $_SESSION["electionYear"];
 }
 
 ?>

@@ -14,10 +14,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $password = $_POST["password"];
 
         $stmt = $conn->prepare("SELECT * FROM admin WHERE USERNAME =:username AND PASSWORD =:password LIMIT 1");
-
         $stmt->bindParam(":username", $username);
         $stmt->bindParam(":password", $password);
-
         $status = $stmt->execute();
 
         if ($status) {
@@ -37,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         } else {
             $_SESSION["status"] = true;
-            $_SESSION["message"] = $stmt->errorInfo();
+            $_SESSION["message"] = "incorrect password";
             header("location:admin.login.php");
             die();
         }
@@ -63,6 +61,7 @@ function test_input($data)
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         body {
@@ -99,7 +98,7 @@ function test_input($data)
         }
 
         @media(min-width: 1024px) {
-            form{
+            form {
                 margin-left: 500px;
 
             }
@@ -109,8 +108,13 @@ function test_input($data)
 </head>
 
 <body>
+<?php 
 
-
+if(isset($_SESSION["message"])){
+    echo "<script>wrongPassword()</script>"; 
+    unset($_SESSION["message"]); 
+}
+?>
 
 
     <div class="container-fluid">
@@ -123,12 +127,22 @@ function test_input($data)
                 Password<br>
                 <input type="password" name="password" autocomplete="off" required><br><br>
                 <input class="btn btn-success" type="submit" value="Log in" id="submit"></input>
+                <!-- <button onclick=wrongPassword()>click here</button> -->
                 <br>
             </form>
         </div>
     </div>
 
-
+    <script>
+        function wrongPassword() {
+            Swal.fire({
+                title: "Incorrect Username or Password!",
+                timer: 5000,
+                timerProgressBar: true,
+            })
+            ;
+        }
+    </script>
 </body>
 
 </html>

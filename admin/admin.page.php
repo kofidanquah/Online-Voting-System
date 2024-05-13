@@ -8,7 +8,7 @@ if (isset($_SESSION["username"])) {
     header("Location:admin.login.php");
     die();
 }
-//dispalying all active year
+//displaying all active year
 $query2 = "SELECT * FROM activeyear ORDER BY YEAR ASC";
 $stmt2 = $conn->prepare($query2);
 $stmt2->execute();
@@ -99,12 +99,13 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
-
-$query = "SELECT * FROM electiontrigger WHERE ELECTION_YEAR = '$electionYear'";
-$stmt1 = $conn->prepare($query);
-$stmt1->execute();
-$data = $stmt1->fetch(PDO::FETCH_ASSOC);
-$status = $data['STATUS'];
+if ($electionYear){
+    $query = "SELECT * FROM electiontrigger WHERE ELECTION_YEAR = '$electionYear'";
+    $stmt1 = $conn->prepare($query);
+    $stmt1->execute();
+    $data = $stmt1->fetch(PDO::FETCH_ASSOC);
+    $status = $data['STATUS'];
+}
 
 
 $resultSql = "SELECT CAND_CODE, COUNT(ID) AS TOTAL_VOTES FROM election GROUP BY CAND_CODE";
@@ -168,7 +169,7 @@ $_SESSION["electionYear"] = $electionYear;
             padding: 12px 20px;
             margin: 8px 0;
             display: inline-block;
-            border: 1px solid #ccc;
+            /* border: 1px solid #ccc; */
             border-radius: 4px;
             box-sizing: border-box;
         }
@@ -402,10 +403,13 @@ $_SESSION["electionYear"] = $electionYear;
                     </thead>
                     <tbody>
                         <?php
-                        $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR = $electionYear ORDER BY POSITION ASC";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->execute();
-                        $candidates = $stmt->fetchAll();
+                        if($electionYear){
+                            $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR = $electionYear ORDER BY POSITION ASC";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->execute();
+                            $candidates = $stmt->fetchAll();
+
+                        }
 
                         if (!empty($electionYear)) {
                             try {

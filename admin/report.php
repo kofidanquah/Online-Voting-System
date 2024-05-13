@@ -7,10 +7,11 @@ if (isset($_SESSION["username"])) {
     die();
 }
 
-if (isset($_SESSION["electionYear"]));
-$selectedYear = $_SESSION["electionYear"];
+if (isset($_SESSION["electionYear"])){
+    $selectedYear = $_SESSION["electionYear"];
+}
 
-$electionYear = $_GET["electionYear"];
+$electionYear = "electionYear";
 
 $sql = "SELECT CAND_CODE, COUNT(ID) AS TOTAL_VOTES FROM election WHERE ELECTION_YEAR=:electionYear GROUP BY CAND_CODE";
 $stmt = $conn->prepare($sql);
@@ -153,7 +154,7 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
                 <?php
                 if (!empty($electionYear)) {
                     try {
-                        $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR= $electionYear";
+                        $sql = "SELECT * FROM candidates WHERE ELECTION_YEAR= '$electionYear'";
                         $stmt = $conn->prepare($sql);
                         $stmt->execute();
                         $candidates = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -191,7 +192,6 @@ $activeYear = $stmt2->fetchAll(PDO::FETCH_ASSOC);
                         echo "Connection failed: " . $e->getMessage();
                     }
                 } else {
-                    echo "Records not Available, Set Date Range to display report";
                 }
 
                 // Convert PHP array to JSON for JavaScript

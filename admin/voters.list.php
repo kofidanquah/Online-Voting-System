@@ -8,16 +8,20 @@ if (isset($_SESSION["username"])) {
 }
 
 
-if (isset($_SESSION["electionYear"]));
-$electionYear = $_SESSION["electionYear"];
-$search = $_GET["search"];
+if (isset($_SESSION["electionYear"])){
+    $electionYear = $_SESSION["electionYear"];
+}
+
+$search = "";
+if (isset($_GET["search"])){
+    $search = $_GET["search"];
+}
 
 //count total number of voters
 try {
     $sql = "SELECT COUNT(VOTER_ID) AS total_voters FROM voters WHERE ELECTION_YEAR = '$electionYear'";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-
 
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -48,7 +52,6 @@ try {
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
 }
-
 
 ?>
 

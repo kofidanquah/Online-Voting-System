@@ -19,8 +19,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $electionYear = $_POST["electionYear"];
     $file = $_FILES["image"];
     $email = $_POST["email"];
-    $voterId = $_POST["voterId"];
-    $voterPassword = $_POST["voterPassword"];
 
     //check if email already exists
     $sql = "SELECT * FROM voters WHERE VOTER_EMAIL = '$email'";
@@ -45,7 +43,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 try {
                     $voterId = generateVoterId();
                     $voterPassword = generateVoterPassword();
-                    $query = "INSERT INTO voters (VOTER_IMAGE, GENDER, FIRST_NAME, LAST_NAME, VOTER_ID, PASSWORD, ELECTION_YEAR, VOTER_EMAIL) VALUES (:filename, :gender,  :firstname, :lastname, :voterId, :voterPassword, :electionYear, :email)";
+                    $hashed_password = password_hash($voterPassword, PASSWORD_DEFAULT);
+
+                    $query = "INSERT INTO voters (VOTER_IMAGE, GENDER, FIRST_NAME, LAST_NAME, VOTER_ID, PASSWORD, ELECTION_YEAR, VOTER_EMAIL) VALUES (:filename, :gender,  :firstname, :lastname, :voterId, :hashed_password, :electionYear, :email)";
                     $stmt = $conn->prepare($query);
                     $stmt->bindParam(':filename', $filename);
                     $stmt->bindParam(':firstname', $firstname);
@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->bindParam(':gender', $gender);
                     $stmt->bindParam(':electionYear', $electionYear);
                     $stmt->bindParam(':voterId', $voterId);
-                    $stmt->bindParam(':voterPassword', $voterPassword);
+                    $stmt->bindParam(':hashed_password', $hashed_password);
                     $stmt->bindParam(':email', $email);
 
                     $stmt->execute();
@@ -105,4 +105,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Close the database connection
         $conn = null;
-                                ?>
+                                

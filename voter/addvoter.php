@@ -43,9 +43,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 try {
                     $voterId = generateVoterId();
                     $voterPassword = generateVoterPassword();
-                    $hashed_password = password_hash($voterPassword, PASSWORD_DEFAULT);
 
-                    $query = "INSERT INTO voters (VOTER_IMAGE, GENDER, FIRST_NAME, LAST_NAME, VOTER_ID, PASSWORD, ELECTION_YEAR, VOTER_EMAIL) VALUES (:filename, :gender,  :firstname, :lastname, :voterId, :hashed_password, :electionYear, :email)";
+                    $query = "INSERT INTO voters (VOTER_IMAGE, GENDER, FIRST_NAME, LAST_NAME, VOTER_ID, PASSWORD, ELECTION_YEAR, VOTER_EMAIL) 
+                    VALUES (:filename, :gender,  :firstname, :lastname, :voterId, :voterPassword, :electionYear, :email)";
                     $stmt = $conn->prepare($query);
                     $stmt->bindParam(':filename', $filename);
                     $stmt->bindParam(':firstname', $firstname);
@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->bindParam(':gender', $gender);
                     $stmt->bindParam(':electionYear', $electionYear);
                     $stmt->bindParam(':voterId', $voterId);
-                    $stmt->bindParam(':hashed_password', $hashed_password);
+                    $stmt->bindParam(':voterPassword', $voterPassword);
                     $stmt->bindParam(':email', $email);
 
                     $stmt->execute();
@@ -68,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
                         $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
                         $mail->Username   = 'votingsystem05@gmail.com';                     //SMTP username
-                        $mail->Password   = 'pgnj cqgf lrgg yikf';                               //SMTP password
+                        $mail->Password   = 'lvae tkvo eysi emga';                               //SMTP password
                         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
                         $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
@@ -105,4 +105,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Close the database connection
         $conn = null;
-                                

@@ -12,18 +12,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
         $voterId = test_input($_POST["voterId"]);
         $password = $_POST["password"];
-        // echo"vt";
 
         try {
-            $stmt = $conn->prepare("SELECT * FROM voters WHERE VOTER_ID =:voterId LIMIT 1");
+            $stmt = $conn->prepare("SELECT * FROM voters WHERE VOTER_ID =:voterId AND PASSWORD =:password LIMIT 1");
 
             $stmt->bindParam(":voterId", $voterId);
+            $stmt->bindParam(":password", $password);
 
             $status = $stmt->execute();
 
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($data){
-                if (password_verify($password, $data['PASSWORD'])) {
                     $_SESSION["firstname"] = $data['FIRST_NAME'];
                     $_SESSION["lastname"] = $data['LAST_NAME'];
                     $_SESSION["voteStatus"] = $data['STATUS'];
@@ -34,9 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     header("location:dashboard.php");
                     die();
                 } else {
-                    header("location:login.view.php");
-                    die();
-                }
+                    
 
             }
         } catch (PDOException $e) {

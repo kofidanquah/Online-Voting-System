@@ -291,7 +291,6 @@ $_SESSION["electionYear"] = $electionYear;
                                 <input type="number" name="newYear" min="2023" autocomplete=off value="2023" required>
                                 <button class="btn btn-success">Save</button>
                             </form>
-                            <!-- <button class="btn btn-success" onclick="confirmLogout()">sweet alert</button> -->
                         </div>
 
                     </div>
